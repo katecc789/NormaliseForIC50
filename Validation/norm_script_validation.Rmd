@@ -1,0 +1,69 @@
+---
+title: "normalisation_script_validation"
+author: "Mark_Cheng"
+date: "2023-10-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(readxl)
+input_file <- "normalisation_script_validation_dataset.xlsx"
+input_name <- tools::file_path_sans_ext(input_file)
+# read in and select relevant 8x12 area of the excel Results sheet
+df <- read_excel(input_file,sheet = "Sheet1")
+df
+```
+
+```{r}
+library(dplyr)
+df_PRISM <- df%>%select("PRISM normalise", 5,6,7,8,9,10,11,12,13)
+df_script <-df%>%select("Script normalise",17,18,19,20,21,22,23,24,25)
+df_PRISM
+```
+
+
+```{r}
+stack(df_PRISM)
+stack(df_script)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+data <- cross_join(stack(df_PRISM),stack(df_script))
+data
+```
+```{r}
+colnames(data) <- c("PRISM_norm","x","script_norm","y")
+data.final <- data[-c(2,4)]
+data.final
+```
+```{r}
+library("ggpubr")
+ggscatter(data.final, x = "PRISM_norm", y = "script_norm", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "PRISM_norm", ylab = "script_norm")
+```
+# MANUALLY TALLIFIED
+```{r}
+input_file <- "tall_normalisation_script_validation_dataset.xlsx"
+input_name <- tools::file_path_sans_ext(input_file)
+# read in and select relevant 8x12 area of the excel Results sheet
+df <- read_excel(input_file,sheet = "Sheet1")
+df
+```
+```{r}
+library(ggpubr)
+plot<-ggscatter(df, x = "PRISM normalise", y = "Script normalise",
+          add = "reg.line", add.params = list(color="blue", fill="lightgrey"), conf.int = TRUE, # Add confidence interval
+          cor.coef = FALSE, cor.method = "pearson", # Add correlation coefficient. see ?stat_cor
+          xlab = "PRISM", ylab = "R Script")+ stat_cor(cor.coef.name = "R",color="red", method = "pearson", label.sep = "\n")
+print(plot)
+```
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
