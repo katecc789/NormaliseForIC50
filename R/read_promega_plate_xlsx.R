@@ -6,9 +6,10 @@
 #' @param input_promega_excel_file_path Path to the input file
 #' @return A 8x12 data.frame with rownames and column headers
 #' @export
-
 read_promega_plate_excel= function(input_promega_excel_file_path,sheetname="Results"){
-  df <- readxl::read_excel(input_promega_excel_file_path,sheet=sheetname)[8:16,5:17]
+  df <- readxl::read_excel(input_promega_excel_file_path,
+                           sheet=sheetname,
+                           .name_repair = "unique_quiet")[8:16,5:17] # subset relevant columns and rows
   df <- data.frame(df)
   colnames(df) <- df[c(1),] #set first row as colnames (default is 1-12, or whatever it is being renamed to) as headers
   df <- df [-c(1),] # remove first row (1-12) from df
