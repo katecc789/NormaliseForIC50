@@ -16,6 +16,15 @@ devtools::install_github("TKMarkCheng/NormaliseForIC50")
 ```
 
 ## To use the script
+### Method 1
+As of 09/11/2023, this script has been modularised and updated as an R package. This means it can be loaded onto R via
+```
+if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
+devtools::install_github("TKMarkCheng/NormaliseForIC50")
+```
+A detailed tutorial is available at [Introduction.Rmd]((https://github.com/TKMarkCheng/NormaliseForIC50/blob/main/vignettes/introduction.html)).
+
+### Method 2
 0. Clone/Download the github repository.
 1. Move all the Promega read .xlsx files into the same folder (your `input_directory`)
 2. In the `normalisation.R` script, Change the `input_directory`, `input_file` and `output_file` to appropriate names
