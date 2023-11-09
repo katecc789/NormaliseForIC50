@@ -17,9 +17,10 @@ load the library/package from github.
 if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
 devtools::install_github("TKMarkCheng/NormaliseForIC50")
 ```
-
+### Loading sample, defining output file, and plate rotation (if any)
+It is very important for you to change the following file paths and settings to fit your data. (Where are they stored? Where and what do you what the output excel file to be called? Are your plates rotated?)
 ```{r}
-input_file <- "../Validation/2022-09-04 reads/example1.xlsx" #CHANGE to example file in your directory
+input_file <- "../Validation/2022-09-04 reads/example1.xlsx" #CHANGE to example file in your directory for troubleshooting
 input_directory = "../Validation/2022-09-04 reads/" #CHANGE this to directory of input .xlsx data files
 output_file <- "../Validation/test.xlsx" # CHANGE directory and name for yourself 
 rotate_by <- 0 # clockwise degrees, multiples of 90, useful when doing 12 fold dilutions.
