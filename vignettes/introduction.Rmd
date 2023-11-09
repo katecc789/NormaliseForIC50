@@ -1,0 +1,62 @@
+---
+title: "introduction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+input_file <- "../Validation/2022-09-04 reads/example1.xlsx" #CHANGE to example file in your directory
+input_directory = "../Validation/2022-09-04 reads/" #CHANGE this to directory of input .xlsx data files
+output_file <- "../Validation/test.xlsx" # CHANGE directory and name for yourself 
+rotate_by <- 0 # clockwise degrees, multiples of 90, useful when doing 12 fold dilutions.
+```
+
+
+
+```{r setup}
+install.packages("devtools") # if you have not installed "devtools" package
+devtools::install_github("TKMarkCheng/NormaliseForIC50")
+```
+
+```{r}
+plate1 <- NormaliseForIC50::read_promega_plate_excel(input_promega_excel_file_path = "../Validation/2022-09-04 reads/example1.xlsx")
+plate1
+```
+The Name can be any string of characters, as long as there's no excessively weird symbols.
+
+```{r get all the filepaths in the directory}
+neut_raw_files <- Sys.glob(paste0(
+  paste0(input_directory,"*.xlsx")) # find all .xlsx file in input directory
+)
+neut_raw_files
+```
+```{r test run}
+final_func(neut_raw_files[1],rotation_deg_needed = rotate_by)
+```
+
+```{r}
+#create xlsx and populate df into separate sheets. CHANGE rotation_deg_needed if the plate was ROTATED when setting up.
+library(openxlsx)
+wb<-createWorkbook()
+for (neut_raw_file in neut_raw_files){
+  neut_file <- basename(neut_raw_file) #remove file path
+  neut_file = tools::file_path_sans_ext(neut_file) #remove extension
+  addWorksheet(wb,sheetName=neut_file)
+  writeData(wb, sheet = neut_file,x = final_func(neut_raw_file,rotation_deg_needed = rotate_by))
+  print(paste0("normalised data written to:",neut_file))
+
+}
+saveWorkbook(wb,file=output_file,overwrite = TRUE)
+print(paste0("saved collated sheets to excel file:",output_file))
+```
+

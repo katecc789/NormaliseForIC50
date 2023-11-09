@@ -1,9 +1,6 @@
 #purpose: automating the normalization process before importing to PRISM to reduce memory burden.
 #output: xlsx files with sheets named after original - easy for copy and pasting into PRISM
 
-source("R/read_promega_plate_xlsx.R")
-source("R/rotate.R")
-source("R/normalise_plate.R")
 
 # CHANGE THESE TO YOUR FILENAMES
 input_file <- "Validation/2022-09-04 reads/example1.xlsx" #CHANGE to example file in your directory

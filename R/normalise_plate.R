@@ -24,7 +24,10 @@ normalise <- function(df,control_neg_column=1,control_pos_column=2){
       *100 #express as percentage
       ,3 #round to 3 decimal points (Prism standard)
     ))
+    }
+  normalised_df<- data.frame(
+    sapply(df.values,FUN = normalise_cell)
+  )#apply nested function to all cells in subset dataframe
+  rownames(normalised_df) <- rownames(df) #recall rownames
+  return(normalised_df)
   }
-  
-  return(data.frame(lapply(df.values,FUN = normalise_cell))) # apply nested function to all cells in subsetted dataframe
-}

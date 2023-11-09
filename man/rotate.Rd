@@ -2,16 +2,18 @@
 % Please edit documentation in R/rotate.R
 \name{rotate}
 \alias{rotate}
-\title{Reading in Promega plate data, from the excel sheet format.}
+\title{Performs clockwise rotations (0,90,180,270 degrees)}
 \usage{
-rotate(x)
+rotate(df, rotation_deg_needed = 0)
 }
 \arguments{
-\item{x}{dataframe to rotate}
+\item{df}{dataframe to rotate}
+
+\item{rotation_deg_needed}{how many degrees clockwise to rotated (default=0 (no rotation), 90, 180, or 270)}
 }
 \value{
-A dataframe rotated 90 degrees clockwise
+A dataframe rotated by {rotation_deg_needed} degrees clockwise
 }
 \description{
-This function rotates a data.frame of any size by 90 degrees.
+This function rotates a data.frame of any size by 0 (no rotation), 90, 180, or 270 degrees clockwise.
 }
