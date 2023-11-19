@@ -8,7 +8,7 @@
 #' @export
 
 #final function
-final_func <- function(neut_xlsx_path, control_neg_column=1, control_pos_column=2,sheetname="Results", rotation_deg_needed=0){
+final_func <- function(neut_xlsx_path, control_neg_column=c(1), control_pos_column=c(2),sheetname="Results", rotation_deg_needed=0){
   print(paste0("processing input file: ",neut_xlsx_path))
   # 1. read in and select relevant 8x12 area of the excel Results sheet
   df <- read_promega_plate_excel(neut_xlsx_path)

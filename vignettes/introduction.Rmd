@@ -19,11 +19,17 @@ devtools::install_github("TKMarkCheng/NormaliseForIC50")
 ```
 ### Loading sample, defining output file, and plate rotation (if any)
 It is very important for you to change the following file paths and settings to fit your data. (Where are they stored? Where and what do you what the output excel file to be called? Are your plates rotated?)
-```{r}
-input_file <- "../Validation/2022-09-04 reads/example1.xlsx" #CHANGE to example file in your directory for troubleshooting
-input_directory = "../Validation/2022-09-04 reads/" #CHANGE this to directory of input .xlsx data files
-output_file <- "../Validation/test.xlsx" # CHANGE directory and name for yourself 
+```{r setting up files}
+input_file <- "Validation/2022-09-04 reads/example1.xlsx" #CHANGE to example file in your directory for troubleshooting
+input_directory = "Validation/2022-09-04 reads/" #CHANGE this to directory of input .xlsx data files
+output_file <- "Validation/test.xlsx" # CHANGE directory and name for yourself
+```
+
+It is also important that you communicate how your plates are setup, and they should be consistent for each folder that you use this script on. i.e. don't have horizontal plates and vertical plates mixed in the same folder, and positive and negative controls should be in consistent columns in each folder this script is used on.
+```{r plate setup}
 rotate_by <- 0 # clockwise degrees, multiples of 90, useful when doing 12 fold dilutions.
+control_neg_column <- c(1) # default negative control column is on first column from the left
+control_pos_column <- c(2) # default positive control column is on second column from the left
 ```
 ## Getting the filenames from our directory
 What are the names of all of our input files?
@@ -36,13 +42,13 @@ neut_raw_files
 ## Example case: Plate 1
 An inital view of plate 1
 ```{r example}
-plate1 <- NormaliseForIC50::read_promega_plate_excel(input_promega_excel_file_path = "../Validation/2022-09-04 reads/example1.xlsx")
+plate1 <- NormaliseForIC50::read_promega_plate_excel(input_promega_excel_file_path = input_file)
 plate1
 ```
 The Name assigned to each column can be any string of characters, as long as there's no excessively weird symbols.
 
 ```{r test run}
-NormaliseForIC50::final_func(neut_raw_files[1],rotation_deg_needed = rotate_by)
+NormaliseForIC50::final_func(neut_raw_files[1],control_neg_column = c(1),control_pos_column = c(2), rotation_deg_needed = rotate_by)
 ```
 ## Processing all the files in the directory
 
@@ -56,7 +62,10 @@ for (neut_raw_file in neut_raw_files){
   addWorksheet(wb,sheetName=neut_file)
   writeData(wb, sheet = neut_file,
             x = NormaliseForIC50::final_func(
-              neut_raw_file,rotation_deg_needed = rotate_by))
+              neut_raw_file,
+              control_neg_column = control_neg_column,
+              control_pos_column = control_pos_column,
+              rotation_deg_needed = rotate_by))
   print(paste0("normalised data written to:",neut_file))
 }
 saveWorkbook(wb,file=output_file,overwrite = TRUE)

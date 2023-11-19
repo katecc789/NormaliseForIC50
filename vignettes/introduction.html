@@ -1496,7 +1496,7 @@ Package</h1>
 <pre><code>## Loading required package: usethis</code></pre>
 <pre><code>## Warning: package &#39;usethis&#39; was built under R version 4.3.2</code></pre>
 <pre class="r"><code>devtools::install_github(&quot;TKMarkCheng/NormaliseForIC50&quot;)</code></pre>
-<pre><code>## Skipping install of &#39;NormaliseForIC50&#39; from a github remote, the SHA1 (3b9b452e) has not changed since last install.
+<pre><code>## Skipping install of &#39;NormaliseForIC50&#39; from a github remote, the SHA1 (a61ac89a) has not changed since last install.
 ##   Use `force = TRUE` to force installation</code></pre>
 <div id="loading-sample-defining-output-file-and-plate-rotation-if-any" class="section level3">
 <h3>Loading sample, defining output file, and plate rotation (if
@@ -1504,10 +1504,17 @@ any)</h3>
 <p>It is very important for you to change the following file paths and
 settings to fit your data. (Where are they stored? Where and what do you
 what the output excel file to be called? Are your plates rotated?)</p>
-<pre class="r"><code>input_file &lt;- &quot;../Validation/2022-09-04 reads/example1.xlsx&quot; #CHANGE to example file in your directory for troubleshooting
-input_directory = &quot;../Validation/2022-09-04 reads/&quot; #CHANGE this to directory of input .xlsx data files
-output_file &lt;- &quot;../Validation/test.xlsx&quot; # CHANGE directory and name for yourself 
-rotate_by &lt;- 0 # clockwise degrees, multiples of 90, useful when doing 12 fold dilutions.</code></pre>
+<pre class="r"><code>input_file &lt;- &quot;Validation/2022-09-04 reads/example1.xlsx&quot; #CHANGE to example file in your directory for troubleshooting
+input_directory = &quot;Validation/2022-09-04 reads/&quot; #CHANGE this to directory of input .xlsx data files
+output_file &lt;- &quot;Validation/test.xlsx&quot; # CHANGE directory and name for yourself</code></pre>
+<p>It is also important that you communicate how your plates are setup,
+and they should be consistent for each folder that you use this script
+on. i.e. don’t have horizontal plates and vertical plates mixed in the
+same folder, and positive and negative controls should be in consistent
+columns in each folder this script is used on.</p>
+<pre class="r"><code>rotate_by &lt;- 0 # clockwise degrees, multiples of 90, useful when doing 12 fold dilutions.
+control_neg_column &lt;- c(1) # default negative control column is on first column from the left
+control_pos_column &lt;- c(2) # default positive control column is on second column from the left</code></pre>
 </div>
 </div>
 <div id="getting-the-filenames-from-our-directory" class="section level2">
@@ -1517,64 +1524,64 @@ rotate_by &lt;- 0 # clockwise degrees, multiples of 90, useful when doing 12 fol
   paste0(input_directory,&quot;*.xlsx&quot;)) # find all .xlsx file in input directory
 )
 neut_raw_files</code></pre>
-<pre><code>##  [1] &quot;../Validation/2022-09-04 reads/example1.xlsx&quot; 
-##  [2] &quot;../Validation/2022-09-04 reads/example10.xlsx&quot;
-##  [3] &quot;../Validation/2022-09-04 reads/example2.xlsx&quot; 
-##  [4] &quot;../Validation/2022-09-04 reads/example3.xlsx&quot; 
-##  [5] &quot;../Validation/2022-09-04 reads/example4.xlsx&quot; 
-##  [6] &quot;../Validation/2022-09-04 reads/example5.xlsx&quot; 
-##  [7] &quot;../Validation/2022-09-04 reads/example6.xlsx&quot; 
-##  [8] &quot;../Validation/2022-09-04 reads/example7.xlsx&quot; 
-##  [9] &quot;../Validation/2022-09-04 reads/example8.xlsx&quot; 
-## [10] &quot;../Validation/2022-09-04 reads/example9.xlsx&quot;</code></pre>
+<pre><code>##  [1] &quot;Validation/2022-09-04 reads/example1.xlsx&quot; 
+##  [2] &quot;Validation/2022-09-04 reads/example10.xlsx&quot;
+##  [3] &quot;Validation/2022-09-04 reads/example2.xlsx&quot; 
+##  [4] &quot;Validation/2022-09-04 reads/example3.xlsx&quot; 
+##  [5] &quot;Validation/2022-09-04 reads/example4.xlsx&quot; 
+##  [6] &quot;Validation/2022-09-04 reads/example5.xlsx&quot; 
+##  [7] &quot;Validation/2022-09-04 reads/example6.xlsx&quot; 
+##  [8] &quot;Validation/2022-09-04 reads/example7.xlsx&quot; 
+##  [9] &quot;Validation/2022-09-04 reads/example8.xlsx&quot; 
+## [10] &quot;Validation/2022-09-04 reads/example9.xlsx&quot;</code></pre>
 </div>
 <div id="example-case-plate-1" class="section level2">
 <h2>Example case: Plate 1</h2>
 <p>An inital view of plate 1</p>
 <pre class="r"><code>plate1 &lt;- NormaliseForIC50::read_promega_plate_excel(input_promega_excel_file_path = input_file)
 plate1</code></pre>
-<pre><code>##   neg    pos sample one sample one.1 sample two     NA sample three sample three.1      9
-## A  90 376100     182200       229100     171100 186500           80             90 133200
-## B  80 277500     289200       292000     275900 245400          100            110 266000
-## C 100 287200     288400       292000     278800 277700          380            830 291200
-## D 110 301300     309500       301100     304800 313300        24090          27390 314900
-## E  50 280600     293000       286400     309400 292500        99030         119800 300700
-## F  90 272600     266000       289600     303000 309200       175700         203000 302600
-## G 100 251200     295100       286500     311100 283200       244100         239600 287200
-## H  50 348100     350900       345000     386400 364800       343600         351700 360300
-##       10     11     12
-## A 143600  55510  96660
-## B 269900 259500 298000
-## C 293900 275200 327900
-## D 289400 314200 397400
-## E 322300 293400 360300
-## F 294500 293000 379000
-## G 307500 295000 372400
-## H 332200 350300 368300</code></pre>
+<pre><code>##   neg    pos sample one sample one.1 sample two     NA sample three
+## A  90 376100     182200       229100     171100 186500           80
+## B  80 277500     289200       292000     275900 245400          100
+## C 100 287200     288400       292000     278800 277700          380
+## D 110 301300     309500       301100     304800 313300        24090
+## E  50 280600     293000       286400     309400 292500        99030
+## F  90 272600     266000       289600     303000 309200       175700
+## G 100 251200     295100       286500     311100 283200       244100
+## H  50 348100     350900       345000     386400 364800       343600
+##   sample three.1      9     10     11     12
+## A             90 133200 143600  55510  96660
+## B            110 266000 269900 259500 298000
+## C            830 291200 293900 275200 327900
+## D          27390 314900 289400 314200 397400
+## E         119800 300700 322300 293400 360300
+## F         203000 302600 294500 293000 379000
+## G         239600 287200 307500 295000 372400
+## H         351700 360300 332200 350300 368300</code></pre>
 <p>The Name assigned to each column can be any string of characters, as
 long as there’s no excessively weird symbols.</p>
-<pre class="r"><code>NormaliseForIC50::final_func(neut_raw_files[1],rotation_deg_needed = rotate_by)</code></pre>
-<pre><code>## [1] &quot;processing input file: ../Validation/2022-09-04 reads/example1.xlsx&quot;
+<pre class="r"><code>NormaliseForIC50::final_func(neut_raw_files[1],control_neg_column = c(1),control_pos_column = c(2), rotation_deg_needed = rotate_by)</code></pre>
+<pre><code>## [1] &quot;processing input file: Validation/2022-09-04 reads/example1.xlsx&quot;
 ## [1] &quot;negative control = 83.75&quot;
 ## [1] &quot;positive control = 299325&quot;</code></pre>
-<pre><code>##   sample.one sample.one.1 sample.two     NA. sample.three sample.three.1      X9     X10
-## A     39.141       23.468     42.850  37.704      100.001         99.998  55.515  52.040
-## B      3.384        2.448      7.828  18.021       99.995         99.991  11.136   9.833
-## C      3.651        2.448      6.859   7.227       99.901         99.751   2.715   1.813
-## D     -3.400       -0.593     -1.830  -4.670       91.978         90.875  -5.205   3.317
-## E      2.114        4.319     -3.367   2.281       66.934         59.993  -0.459  -7.678
-## F     11.136        3.250     -1.228  -3.300       41.313         32.190  -1.094   1.612
-## G      1.412        4.286     -3.935   5.389       18.455         19.959   4.052  -2.732
-## H    -17.235      -15.264    -29.099 -21.880      -14.796        -17.503 -20.377 -10.986
-##       X11     X12
-## A  81.478  67.726
-## B  13.309   0.443
-## C   8.062  -9.549
-## D  -4.971 -32.775
-## E   1.980 -20.377
-## F   2.114 -26.626
-## G   1.445 -24.420
-## H -17.035 -23.050</code></pre>
+<pre><code>##   sample.one sample.one.1 sample.two     NA. sample.three sample.three.1
+## A     39.141       23.468     42.850  37.704      100.001         99.998
+## B      3.384        2.448      7.828  18.021       99.995         99.991
+## C      3.651        2.448      6.859   7.227       99.901         99.751
+## D     -3.400       -0.593     -1.830  -4.670       91.978         90.875
+## E      2.114        4.319     -3.367   2.281       66.934         59.993
+## F     11.136        3.250     -1.228  -3.300       41.313         32.190
+## G      1.412        4.286     -3.935   5.389       18.455         19.959
+## H    -17.235      -15.264    -29.099 -21.880      -14.796        -17.503
+##        X9     X10     X11     X12
+## A  55.515  52.040  81.478  67.726
+## B  11.136   9.833  13.309   0.443
+## C   2.715   1.813   8.062  -9.549
+## D  -5.205   3.317  -4.971 -32.775
+## E  -0.459  -7.678   1.980 -20.377
+## F  -1.094   1.612   2.114 -26.626
+## G   4.052  -2.732   1.445 -24.420
+## H -20.377 -10.986 -17.035 -23.050</code></pre>
 </div>
 <div id="processing-all-the-files-in-the-directory" class="section level2">
 <h2>Processing all the files in the directory</h2>
@@ -1587,52 +1594,55 @@ for (neut_raw_file in neut_raw_files){
   addWorksheet(wb,sheetName=neut_file)
   writeData(wb, sheet = neut_file,
             x = NormaliseForIC50::final_func(
-              neut_raw_file,rotation_deg_needed = rotate_by))
+              neut_raw_file,
+              control_neg_column = control_neg_column,
+              control_pos_column = control_pos_column,
+              rotation_deg_needed = rotate_by))
   print(paste0(&quot;normalised data written to:&quot;,neut_file))
 }</code></pre>
-<pre><code>## [1] &quot;processing input file: ../Validation/2022-09-04 reads/example1.xlsx&quot;
+<pre><code>## [1] &quot;processing input file: Validation/2022-09-04 reads/example1.xlsx&quot;
 ## [1] &quot;negative control = 83.75&quot;
 ## [1] &quot;positive control = 299325&quot;
 ## [1] &quot;normalised data written to:example1&quot;
-## [1] &quot;processing input file: ../Validation/2022-09-04 reads/example10.xlsx&quot;
+## [1] &quot;processing input file: Validation/2022-09-04 reads/example10.xlsx&quot;
 ## [1] &quot;negative control = 77.5&quot;
 ## [1] &quot;positive control = 361125&quot;
 ## [1] &quot;normalised data written to:example10&quot;
-## [1] &quot;processing input file: ../Validation/2022-09-04 reads/example2.xlsx&quot;
+## [1] &quot;processing input file: Validation/2022-09-04 reads/example2.xlsx&quot;
 ## [1] &quot;negative control = 96.25&quot;
 ## [1] &quot;positive control = 361825&quot;
 ## [1] &quot;normalised data written to:example2&quot;
-## [1] &quot;processing input file: ../Validation/2022-09-04 reads/example3.xlsx&quot;
+## [1] &quot;processing input file: Validation/2022-09-04 reads/example3.xlsx&quot;
 ## [1] &quot;negative control = 96.25&quot;
 ## [1] &quot;positive control = 354575&quot;
 ## [1] &quot;normalised data written to:example3&quot;
-## [1] &quot;processing input file: ../Validation/2022-09-04 reads/example4.xlsx&quot;
+## [1] &quot;processing input file: Validation/2022-09-04 reads/example4.xlsx&quot;
 ## [1] &quot;negative control = 93.75&quot;
 ## [1] &quot;positive control = 363150&quot;
 ## [1] &quot;normalised data written to:example4&quot;
-## [1] &quot;processing input file: ../Validation/2022-09-04 reads/example5.xlsx&quot;
+## [1] &quot;processing input file: Validation/2022-09-04 reads/example5.xlsx&quot;
 ## [1] &quot;negative control = 91.25&quot;
 ## [1] &quot;positive control = 370775&quot;
 ## [1] &quot;normalised data written to:example5&quot;
-## [1] &quot;processing input file: ../Validation/2022-09-04 reads/example6.xlsx&quot;
+## [1] &quot;processing input file: Validation/2022-09-04 reads/example6.xlsx&quot;
 ## [1] &quot;negative control = 87.5&quot;
 ## [1] &quot;positive control = 351112.5&quot;
 ## [1] &quot;normalised data written to:example6&quot;
-## [1] &quot;processing input file: ../Validation/2022-09-04 reads/example7.xlsx&quot;
+## [1] &quot;processing input file: Validation/2022-09-04 reads/example7.xlsx&quot;
 ## [1] &quot;negative control = 92.5&quot;
 ## [1] &quot;positive control = 393425&quot;
 ## [1] &quot;normalised data written to:example7&quot;
-## [1] &quot;processing input file: ../Validation/2022-09-04 reads/example8.xlsx&quot;
+## [1] &quot;processing input file: Validation/2022-09-04 reads/example8.xlsx&quot;
 ## [1] &quot;negative control = 101.25&quot;
 ## [1] &quot;positive control = 381600&quot;
 ## [1] &quot;normalised data written to:example8&quot;
-## [1] &quot;processing input file: ../Validation/2022-09-04 reads/example9.xlsx&quot;
+## [1] &quot;processing input file: Validation/2022-09-04 reads/example9.xlsx&quot;
 ## [1] &quot;negative control = 91.25&quot;
 ## [1] &quot;positive control = 385575&quot;
 ## [1] &quot;normalised data written to:example9&quot;</code></pre>
 <pre class="r"><code>saveWorkbook(wb,file=output_file,overwrite = TRUE)
 print(paste0(&quot;saved collated sheets to excel file:&quot;,output_file))</code></pre>
-<pre><code>## [1] &quot;saved collated sheets to excel file:../Validation/test.xlsx&quot;</code></pre>
+<pre><code>## [1] &quot;saved collated sheets to excel file:Validation/test.xlsx&quot;</code></pre>
 </div>
 
 
