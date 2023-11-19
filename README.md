@@ -1,7 +1,7 @@
 # NormaliseForIC50
 pre-process data to return normalise IC50 curves for direct input into PRISM
 
-This script automates the normalization process for neutralization assays performed on a 96-well plate read on the Promega system. <br />
+This script automates the normalization process for neutralization assays performed on a 96-well plate read on the Promega system, and more generally, serial dilution results with columns/rows of negative and positive controls. <br />
 This script achieved [perfect concordance](https://github.com/TKMarkCheng/NormaliseForIC50/edit/main/README.md#validation) with the normalization in PRISM (R=1.0, ρ<2.2e-16).
 
 **INPUT**: The script currently only reads in the **.xlsx file** outputs from Promega in a given directory. <br />
