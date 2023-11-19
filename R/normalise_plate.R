@@ -9,25 +9,26 @@
 #' @return A normalised dataframe where negative and positive control columns are removed.
 #' @export
 
-normalise <- function(df,control_neg_column=1,control_pos_column=2){
-  control.neg <- mean(df[,control_neg_column],na.rm=TRUE)
-  control.pos <- mean(df[,control_pos_column],na.rm=TRUE)
+normalise <- function(df,control_neg_column=c(1),control_pos_column=c(2)){
+  control.neg <- mean(unlist(df[,control_neg_column]),na.rm=TRUE) #unlist is for when there are multiple positive/negative columns, so the dataframe will be converted to a list where mean() can be called.
+  control.pos <- mean(unlist(df[,control_pos_column]),na.rm=TRUE)
   print(paste0("negative control = ",control.neg))
   print(paste0("positive control = ",control.pos))
+  #exclude positive and negative control columns
   df.values<-df[,-c(control_neg_column,control_pos_column)]
   
   normalise_cell <- function(value){ #nested function - the normalization of individual cells
     return(
       round(
         (1-scale(value,center=control.neg,scale=control.pos-control.neg)/1 #actual normalization
-      ) # express as inverse value (neutralization activity)
-      *100 #express as percentage
-      ,3 #round to 3 decimal points (Prism standard)
-    ))
-    }
+        ) # express as inverse value (neutralization activity)
+        *100 #express as percentage
+        ,3 #round to 3 decimal points (Prism standard)
+      ))
+  }
   normalised_df<- data.frame(
     sapply(df.values,FUN = normalise_cell)
   )#apply nested function to all cells in subset dataframe
   rownames(normalised_df) <- rownames(df) #recall rownames
   return(normalised_df)
-  }
+}
