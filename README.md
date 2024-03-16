@@ -40,3 +40,11 @@ In cases where the plate was accidentally rotated, or a vertical serial dilution
 ## Validation
 Validation set of 10 plates. Further details can be seen in the `Validation` directory. <br />
 ![alt text](https://github.com/TKMarkCheng/NormaliseForIC50/blob/main/Validation/correlation_plot.png)
+
+
+## Common issues
+```
+Error in utils::unzip(zip_path, list = TRUE) :
+zip file '\~$.xlsx' cannot be opened`
+```
+You Need to close that (and all) excel file in your target directory for R to be able to read it.
