@@ -6,7 +6,7 @@
 #' @param sheet the sheet which the wanted PlateMap resides on in the plateMap_file
 #' @param directory_of_files the directory_of_files that is iterated through to look for Promega output files to generated output_plateMap_file.
 #' @param output_plateMap_file filepath where the generated PlateMap will be located.
-#' @importFrom magrittr "%>%"
+#' @importFrom magrittr %>%
 
 expected_columns <- c("Group","Negative_Control_Column","Positive_Control_Column",
              "Individual_condition","Virus","Plate","Plate_Name","Well","dilution_or_concentration","Starting_Dilution_or_concentration","dilution_series")
@@ -81,7 +81,7 @@ generate_plate_map <- function(directory_of_files,output_plateMap_file="Validati
     dplyr::mutate(Plate_Name=
                     tools::file_path_sans_ext(basename(promega_plate_path))
                     )%>%
-    rowwise()%>% dplyr::mutate(file_creation_date=get_read_date(promega_plate_path))
+    dplyr::rowwise()%>% dplyr::mutate(file_creation_date=get_read_date(promega_plate_path))
     
   output_plateMap <- validate_plate_map(output_plateMap)
   if (mode=="return"){

@@ -15,11 +15,10 @@ output:
 load the library/package from github.
 ```{r setup}
 if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
-devtools::install_github("TKMarkCheng/NormaliseForIC50",dependencies = TRUE)
+devtools::install_github("TKMarkCheng/NormaliseForIC50",dependencies = TRUE,force = TRUE)
 ```
 
 ```{r}
-library()
 NormaliseForIC50::generate_plate_map("../Validation/",output_plateMap_file = "test.xlsx")
 ```
 
