@@ -6,23 +6,67 @@
 \alias{expected_columns}
 \alias{validate_plate_map}
 \alias{generate_plate_map}
+\alias{read_validate_plate_map}
+\alias{find_promega_plate_paths}
+\alias{get_read_date}
 \title{Read in and validates, or generate PlateMap following strict formatting as Example_PlateMap.xlsx}
 \format{
 An object of class \code{character} of length 11.
 }
 \usage{
 expected_columns
+
+validate_plate_map(df, plateMap_file, read_mode = "default")
+
+read_validate_plate_map(plateMap_file, sheet = "Sheet1")
+
+find_promega_plate_paths(directory_of_files)
+
+get_read_date(file)
+
+generate_plate_map(
+  directory_of_files,
+  output_plateMap_file = "Validation/generated_platemap.xlsx",
+  output_mode = "return"
+)
 }
 \arguments{
-\item{plateMap_file}{PlateMap excel file name}
+\item{plateMap_file}{PlateMap excel file name to read in.}
+
+\item{read_mode}{"default" which silently adds missing column or "debug" which is invoked which provides warning of missing/unexpected columns.}
 
 \item{sheet}{the sheet which the wanted PlateMap resides on in the plateMap_file}
 
 \item{directory_of_files}{the directory_of_files that is iterated through to look for Promega output files to generated output_plateMap_file.}
 
 \item{output_plateMap_file}{filepath where the generated PlateMap will be located.}
+
+\item{output_mode}{"return" will return into a dataframe variable, "write" will write to excel file defined by output_plateMap_file}
+}
+\value{
+A dataframe, or an excel file with Wells prepared and two additional columns. 1) The file path of the plates, and 2) the file creation date which corresponds to read date.
 }
 \description{
-Read in and validates, or generate PlateMap following strict formatting as Example_PlateMap.xlsx
+Validates the PlateMap by checking if there are unexpected or missing columns, and if there are missing columns, adding them.
+}
+\section{general}{
+
+}
+
+\section{read-created-plate-map}{
+
+}
+
+\section{generate-plate-map}{
+
+
+
+
+
+}
+
+\examples{
+get_read_date("Validation/2022-09-04 reads/example1.xlsx")
+generate_plate_map("Validation/")
 }
 \keyword{datasets}

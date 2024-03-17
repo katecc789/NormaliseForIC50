@@ -13,7 +13,8 @@ Imports:
     dplyr,
     readxl,
     openxlsx,
-    magrittr
+    magrittr,
+    tidyr
 Suggests: 
     knitr,
     rmarkdown

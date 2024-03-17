@@ -14,21 +14,44 @@ output:
 ## Setting up
 load the library/package from github.
 ```{r setup}
-if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
-devtools::install_github("TKMarkCheng/NormaliseForIC50",dependencies = TRUE,force = TRUE)
+# if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
+# devtools::install_github("TKMarkCheng/NormaliseForIC50",dependencies = TRUE,force = TRUE)
 ```
 
+## Generate platemap based on the files in a directory. 
 ```{r}
-NormaliseForIC50::generate_plate_map("../Validation/",output_plateMap_file = "test.xlsx")
-```
+bruh<-NormaliseForIC50::generate_plate_map("../Validation/",mode = "return")
+bruh
 
+wells <- paste0("A", rep(3:12))
+wells
+
+plate_expanded_wells <- tidyr::crossing(
+  Plate_Name = unique(bruh$Plate_Name),
+  Well=wells
+)
+
+tidyr::complete(bruh,Plate_Name,Well=wells)
+
+merge(bruh %>% dplyr::select(-Well),
+      plate_expanded_wells) %>%
+  dplyr::arrange(as.numeric(gsub("\\D","",Plate_Name)),
+                 as.numeric(gsub("\\D","",Well)))
+
+library(magrittr)
+bruh <- dplyr::select(bruh, -one_of(names(plate_expanded_wells))) %>% dplyr::bind_cols(plate_expanded_wells)
+
+bruh
+```
+you can also choose to write to an excel file.
+```{r}
+#NormaliseForIC50::generate_plate_map("../Validation/",mode="write",output_plateMap_file = "../Validation/validation_output/example_generated_platemap.xlsx")
+
+```
 
 ### Loading sample, defining output file, and plate rotation (if any)
-It is very important for you to change the following file paths and settings to fit your data. (Where are they stored? Where and what do you what the output excel file to be called? Are your plates rotated?)
 ```{r setting up files}
-
-
-input_file <- "Validation/2022-09-04 reads/example1.xlsx" #CHANGE to example file in your directory for troubleshooting
+input_file <- "../Validation/Concentration_mode/2024-03-16/Inhib1_Inhib2_Vir1Vir2.xlsx" #CHANGE to example file in your directory for troubleshooting
 input_directory = "Validation/2022-09-04 reads/" #CHANGE this to directory of input .xlsx data files
 output_file <- "Validation/validation_output/test.xlsx" # CHANGE directory and name for yourself
 ```
