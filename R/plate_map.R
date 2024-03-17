@@ -83,9 +83,9 @@ generate_plate_map <- function(directory_of_files,output_plateMap_file="Validati
     rowwise()%>% dplyr::mutate(file_creation_date=get_read_date(promega_plate_path))
     
   output_plateMap <- validate_plate_map(output_plateMap)
-  if (mode="return"){
+  if (mode=="return"){
     return (output_plateMap)
-  } else if (mode="write"){
+  } else if (mode=="write"){
     openxlsx::write.xlsx(x=output_plateMap,file = output_plateMap_file)
     message(glue::glue("Generated platemap based on Promega files in {directory_of_files} written to {output_plateMap_file}"))
   }

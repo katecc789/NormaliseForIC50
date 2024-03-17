@@ -1,5 +1,5 @@
 ---
-title: "How to integrate a platemap which maps out experiments to name columns automatically and group results"
+title: "How to integrate a platemap which maps out experiments to name columns automatically and group results."
 author: "Mark Cheng"
 date: "17/03/2024"
 output:
@@ -15,8 +15,9 @@ output:
 load the library/package from github.
 ```{r setup}
 if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
-devtools::install_github("TKMarkCheng/NormaliseForIC50")
+devtools::install_github("TKMarkCheng/NormaliseForIC50",dependencies = TRUE)
 ```
+
 ```{r}
 NormaliseForIC50::generate_plate_map("../Validation/",output_plateMap_file = "test.xlsx")
 ```
