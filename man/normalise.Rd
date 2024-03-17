@@ -4,7 +4,7 @@
 \alias{normalise}
 \title{Reads in dataframe of Promega data, and normalise.}
 \usage{
-normalise(df, control_neg_column = 1, control_pos_column = 2)
+normalise(df, control_neg_column = c(1), control_pos_column = c(2))
 }
 \arguments{
 \item{df}{dataframe to normalise, where left most column is negative control, and second left column is positive control.}
