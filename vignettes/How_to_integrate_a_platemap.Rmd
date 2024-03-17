@@ -1,7 +1,7 @@
 ---
-title: "Introduction to how to use Normalisation Package"
+title: "How to integrate a platemap which maps out experiments to name columns automatically and group results"
 author: "Mark Cheng"
-date: "09/11/2023"
+date: "17/03/2024"
 output:
   html_document: 
     theme: cerulean
@@ -17,6 +17,11 @@ load the library/package from github.
 if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
 devtools::install_github("TKMarkCheng/NormaliseForIC50")
 ```
+```{r}
+NormaliseForIC50::generate_plate_map("../Validation/",output_plateMap_file = "test.xlsx")
+```
+
+
 ### Loading sample, defining output file, and plate rotation (if any)
 It is very important for you to change the following file paths and settings to fit your data. (Where are they stored? Where and what do you what the output excel file to be called? Are your plates rotated?)
 ```{r setting up files}

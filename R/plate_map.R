@@ -67,11 +67,12 @@ get_read_date <- function(file){
 
 #' @section generate-plate-map:
 #' @rdname generate_plate_map
-#' @returns An excel file with the , with two additional columns. The file path of the plates, and the file creation date which corresponds to read date.
+#' @param mode "return" will return into a variable, "write" will write to excel file defined by output_plateMap_file
+#' @returns A dataframe, or an excel file with two additional columns. 1) The file path of the plates, and 2) the file creation date which corresponds to read date.
 #' @examples
 #' generate_plate_map("Validation/")
 #' @export
-generate_plate_map <- function(directory_of_files,output_plateMap_file="Validation/generated_platemap.xlsx"){
+generate_plate_map <- function(directory_of_files,output_plateMap_file="Validation/generated_platemap.xlsx",mode="return"){
   promega_plate_paths <- find_promega_plate_paths(directory_of_files)
   promega_plate_path <- data.frame(promega_plate_paths) %>% dplyr::rename(promega_plate_path=promega_plate_paths)
   
@@ -82,6 +83,10 @@ generate_plate_map <- function(directory_of_files,output_plateMap_file="Validati
     rowwise()%>% dplyr::mutate(file_creation_date=get_read_date(promega_plate_path))
     
   output_plateMap <- validate_plate_map(output_plateMap)
-  openxlsx::write.xlsx(x=output_plateMap,file = output_plateMap_file)
-  message(glue::glue("Generated platemap based on Promega files in {directory_of_files} written to {output_plateMap_file}"))
+  if (mode="return"){
+    return (output_plateMap)
+  } else if (mode="write"){
+    openxlsx::write.xlsx(x=output_plateMap,file = output_plateMap_file)
+    message(glue::glue("Generated platemap based on Promega files in {directory_of_files} written to {output_plateMap_file}"))
+  }
 }
