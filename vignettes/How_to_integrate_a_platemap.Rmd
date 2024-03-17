@@ -19,6 +19,7 @@ devtools::install_github("TKMarkCheng/NormaliseForIC50",dependencies = TRUE)
 ```
 
 ```{r}
+library()
 NormaliseForIC50::generate_plate_map("../Validation/",output_plateMap_file = "test.xlsx")
 ```
 
