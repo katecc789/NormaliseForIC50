@@ -14,10 +14,9 @@ output:
 ## Setting up
 load the library/package from github.
 ```{r setup}
-# if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
+if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
 devtools::install_github("TKMarkCheng/NormaliseForIC50",dependencies = TRUE,force = TRUE)
 ```
-
 
 ### Loading sample, defining output file.
 ```{r setting up files}
@@ -58,8 +57,6 @@ plate1_map <- platemap_sera %>% filter(Plate_Name == plate1)
 plateMap_map_onto_promega_read <- function(plateMap,promega_read_values){
   #plateMap = platemap section for 1 plate
   #proemga_read_values = read in via NormaliseForIC50::read_promgea_plate_excel. This is defaulted to be pulled from the plateMap's column$promega_plate_path
-  plate_map <- plateMap %>% mutate(column=as.numeric(gsub("\\D","",Well))) # create a column reference
-  
   processed_read_values <- promega_read_values
   # change the column headers to <Individual_condition>_<Virus>
   colnames(processed_read_values) <- paste0(plate_map$Individual_condition[match(1:ncol(processed_read_values),plate_map$column)],

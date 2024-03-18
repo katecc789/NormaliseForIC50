@@ -71,6 +71,7 @@ find_promega_plate_paths <- function(directory_of_files){
 #' @section generate-plate-map:
 #' @examples
 #' get_read_date("Validation/2022-09-04 reads/example1.xlsx")
+
 get_read_date <- function(file){
   execution_date_as_numeric <- (data.frame(suppressMessages(readxl::read_excel(file,sheet=1,col_names = FALSE)))[7,4])
   execution_date <- as.Date(as.numeric(execution_date_as_numeric),origin="1899-12-30") # excel specifically uses Dec 30, 1899 as origin
@@ -84,6 +85,7 @@ get_read_date <- function(file){
 #' @examples
 #' generate_plate_map("Validation/")
 #' @export
+#' 
 generate_plate_map <- function(directory_of_files="Validation/",output_plateMap_file="Validation/generated_platemap.xlsx",output_mode="return"){
   promega_plate_paths <- find_promega_plate_paths(directory_of_files)
   promega_plate_path <- data.frame(promega_plate_paths) %>% dplyr::rename(promega_plate_path=promega_plate_paths)
@@ -113,7 +115,9 @@ generate_plate_map <- function(directory_of_files="Validation/",output_plateMap_
                                                        dilution_or_concentration = dplyr::if_else(is.na(dilution_or_concentration),"dilution",dilution_or_concentration),
                                                        Starting_Dilution_or_concentration = dplyr::if_else(is.na(Starting_Dilution_or_concentration),20,Starting_Dilution_or_concentration),
                                                        dilution_series = dplyr::if_else(is.na(dilution_series),"1 in 3",dilution_series)
-                                                       ) 
+                                                       )
+  # create a column reference
+  output_plateMap <- output_plateMap %>% mutate(column=as.numeric(gsub("\\D","",Well)))
   
   # validate to re-order
   output_plateMap <- validate_plate_map(output_plateMap)
@@ -125,7 +129,6 @@ generate_plate_map <- function(directory_of_files="Validation/",output_plateMap_
     message(glue::glue("Generated platemap based on Promega files in {directory_of_files} written to {output_plateMap_file}"))
   }
 }
-generate_plate_map()
 #' @rdname map_plate_map
 #' @section mapping platemap onto values:
 #' @param platemap section of platemap that describes the one dataframe of read value
