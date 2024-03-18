@@ -113,7 +113,9 @@ generate_plate_map <- function(directory_of_files="Validation/",output_plateMap_
                                                        dilution_or_concentration = dplyr::if_else(is.na(dilution_or_concentration),"dilution",dilution_or_concentration),
                                                        Starting_Dilution_or_concentration = dplyr::if_else(is.na(Starting_Dilution_or_concentration),20,Starting_Dilution_or_concentration),
                                                        dilution_series = dplyr::if_else(is.na(dilution_series),"1 in 3",dilution_series)
-                                                       ) 
+                                                       )
+  # create a column reference
+  output_plateMap <- output_plateMap %>% mutate(column=as.numeric(gsub("\\D","",Well)))
   
   # validate to re-order
   output_plateMap <- validate_plate_map(output_plateMap)
