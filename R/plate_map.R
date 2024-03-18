@@ -84,7 +84,7 @@ get_read_date <- function(file){
 #' @examples
 #' generate_plate_map("Validation/")
 #' @export
-generate_plate_map <- function(directory_of_files,output_plateMap_file="Validation/generated_platemap.xlsx",output_mode="return"){
+generate_plate_map <- function(directory_of_files="Validation/",output_plateMap_file="Validation/generated_platemap.xlsx",output_mode="return"){
   promega_plate_paths <- find_promega_plate_paths(directory_of_files)
   promega_plate_path <- data.frame(promega_plate_paths) %>% dplyr::rename(promega_plate_path=promega_plate_paths)
   
@@ -94,20 +94,29 @@ generate_plate_map <- function(directory_of_files,output_plateMap_file="Validati
                     )%>%
     dplyr::rowwise()%>% dplyr::mutate(file_creation_date=
                                         get_read_date(promega_plate_path)) #add file creation date
-  # validate to match format
+  # validate to match format and add missing columns
   output_plateMap <- validate_plate_map(output_plateMap)
   
-  # expand rows to generate wells that people can fill manually
-  plate_expanded_wells <- tidyr::crossing(
-    Plate_Name = unique(output_plateMap$Plate_Name),
-    Well=wells
-  )
+  # expand number of rows with pre-generated A3-A12 wells so people don't have to fill everything manually
+  plate_expanded_wells <- tidyr::crossing(Plate_Name = unique(output_plateMap$Plate_Name),
+                                          Well=wells
+                                          )
   output_plateMap <- merge(output_plateMap %>% dplyr::select(-Well),
-                           plate_expanded_wells
-  ) %>%
-    dplyr::arrange(as.numeric(gsub("\\D","",Plate_Name)),
-                   as.numeric(gsub("\\D","",Well))
-    )
+                           plate_expanded_wells) %>%dplyr::arrange(
+                             as.numeric(gsub("\\D","",Plate_Name)),
+                             as.numeric(gsub("\\D","",Well))
+                             )
+  # pre-generate default values for
+  #Negative_Control_Column, Positive_Control_Column, dilution_or_concentration, Starting_Dilution_or_concentration, dilution_series with default values
+  output_plateMap <- output_plateMap %>% dplyr::mutate(Negative_Control_Column = dplyr::if_else(is.na(Negative_Control_Column),1,Negative_Control_Column),
+                                                       Positive_Control_Column = dplyr::if_else(is.na(Positive_Control_Column),2,Positive_Control_Column),
+                                                       dilution_or_concentration = dplyr::if_else(is.na(dilution_or_concentration),"dilution",dilution_or_concentration),
+                                                       Starting_Dilution_or_concentration = dplyr::if_else(is.na(Starting_Dilution_or_concentration),20,Starting_Dilution_or_concentration),
+                                                       dilution_series = dplyr::if_else(is.na(dilution_series),"1 in 3",dilution_series)
+                                                       ) 
+  
+  # validate to re-order
+  output_plateMap <- validate_plate_map(output_plateMap)
   
   if (output_mode=="return"){
     return (output_plateMap)
@@ -116,3 +125,10 @@ generate_plate_map <- function(directory_of_files,output_plateMap_file="Validati
     message(glue::glue("Generated platemap based on Promega files in {directory_of_files} written to {output_plateMap_file}"))
   }
 }
+generate_plate_map()
+#' @rdname map_plate_map
+#' @section mapping platemap onto values:
+#' @param platemap section of platemap that describes the one dataframe of read value
+#' @param read_value_df the read_values from read_promega_plate_excel
+#' @returns A dataframe with the negative control column(s), virus control column(s), conditions and viruses of each experiment column annotated. Currently only supports non-rotated plates.
+
