@@ -8,6 +8,8 @@ read_promega_plate_excel(input_promega_excel_file_path, sheetname = "Results")
 }
 \arguments{
 \item{input_promega_excel_file_path}{Path to the input file}
+
+\item{sheetname}{The sheetname where the result is recorded on the Promega file. Should be "Results" if not manually changed.}
 }
 \value{
 A 8x12 data.frame with rownames and column headers

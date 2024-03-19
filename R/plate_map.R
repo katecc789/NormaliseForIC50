@@ -16,6 +16,8 @@ wells <- paste0("A", rep(3:12)) # assuming vertical serial dilutions
 
 #' @rdname plate_map_functions
 #' @section general:
+#' @param df The read in platemap dataframe
+#' @param plateMap_file the filepath used to generate df.
 #' The validate function is required in both reading in and writing out to make sure the expected_columns are included.
 #' @description
 #' Validates the PlateMap by checking if there are unexpected or missing columns, and if there are missing columns, adding them.
@@ -53,7 +55,6 @@ read_validate_plate_map <- function(plateMap_file,sheet="Sheet1"){
 
 #' @rdname plate_map_functions
 #' @section generate-plate-map: 
-#' 
 find_promega_plate_paths <- function(directory_of_files){
   all_excel_files <- list.files(path=directory_of_files,pattern = ".xlsx",full.names = TRUE,recursive = TRUE,ignore.case = FALSE)
   # catch instances where the entire home directory and all sub-directories are searched. TODO: Improve condition for this catch.
@@ -66,14 +67,11 @@ find_promega_plate_paths <- function(directory_of_files){
   message(glue::glue("A total of {length(promega_excel_files)} promega data plates are found out of {length(all_excel_files)} excel files in the directory {directory_of_files}."))
   return(promega_excel_files)
 }
-
 #' @rdname plate_map_functions
+#' @param promega_excel_file A promega .xlsx file which has intact metadata (first sheet).
 #' @section generate-plate-map:
-#' @examples
-#' get_read_date("Validation/2022-09-04 reads/example1.xlsx")
-
-get_read_date <- function(file){
-  execution_date_as_numeric <- (data.frame(suppressMessages(readxl::read_excel(file,sheet=1,col_names = FALSE)))[7,4])
+get_read_date <- function(promega_excel_file){
+  execution_date_as_numeric <- (data.frame(suppressMessages(readxl::read_excel(promega_excel_file,sheet=1,col_names = FALSE)))[7,4])
   execution_date <- as.Date(as.numeric(execution_date_as_numeric),origin="1899-12-30") # excel specifically uses Dec 30, 1899 as origin
   return(execution_date)
 }
@@ -82,8 +80,6 @@ get_read_date <- function(file){
 #' @section generate-plate-map:
 #' @param output_mode "return" will return into a dataframe variable, "write" will write to excel file defined by output_plateMap_file
 #' @returns A dataframe, or an excel file with Wells prepared and two additional columns. 1) The file path of the plates, and 2) the file creation date which corresponds to read date.
-#' @examples
-#' generate_plate_map("Validation/")
 #' @export
 #' 
 generate_plate_map <- function(directory_of_files="Validation/",output_plateMap_file="Validation/generated_platemap.xlsx",output_mode="return"){
@@ -91,11 +87,10 @@ generate_plate_map <- function(directory_of_files="Validation/",output_plateMap_
   promega_plate_path <- data.frame(promega_plate_paths) %>% dplyr::rename(promega_plate_path=promega_plate_paths)
   
   output_plateMap <- promega_plate_path %>% 
-    dplyr::mutate(Plate_Name=
-                    tools::file_path_sans_ext(basename(promega_plate_path)) # strip plate_path to get Plate_Name
-                    )%>%
-    dplyr::rowwise()%>% dplyr::mutate(file_creation_date=
-                                        get_read_date(promega_plate_path)) #add file creation date
+    dplyr::mutate(Plate_Name=tools::file_path_sans_ext(basename(promega_plate_path)) # strip plate_path to get Plate_Name
+                  )%>%
+    dplyr::rowwise()%>% dplyr::mutate(file_creation_date=get_read_date(promega_plate_path) #add file creation date
+                                      )
   # validate to match format and add missing columns
   output_plateMap <- validate_plate_map(output_plateMap)
   
@@ -117,7 +112,7 @@ generate_plate_map <- function(directory_of_files="Validation/",output_plateMap_
                                                        dilution_series = dplyr::if_else(is.na(dilution_series),"1 in 3",dilution_series)
                                                        )
   # create a column reference
-  output_plateMap <- output_plateMap %>% mutate(column=as.numeric(gsub("\\D","",Well)))
+  output_plateMap <- output_plateMap %>% dplyr::mutate(column=as.numeric(gsub("\\D","",Well)))
   
   # validate to re-order
   output_plateMap <- validate_plate_map(output_plateMap)
@@ -129,9 +124,3 @@ generate_plate_map <- function(directory_of_files="Validation/",output_plateMap_
     message(glue::glue("Generated platemap based on Promega files in {directory_of_files} written to {output_plateMap_file}"))
   }
 }
-#' @rdname map_plate_map
-#' @section mapping platemap onto values:
-#' @param platemap section of platemap that describes the one dataframe of read value
-#' @param read_value_df the read_values from read_promega_plate_excel
-#' @returns A dataframe with the negative control column(s), virus control column(s), conditions and viruses of each experiment column annotated. Currently only supports non-rotated plates.
-

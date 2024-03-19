@@ -13,13 +13,15 @@ final_func(
 )
 }
 \arguments{
+\item{neut_xlsx_path}{a file to normalise, where by default negative control is left most column, and positive control is second left column.}
+
 \item{control_neg_column}{The column which negative/cell control are located (column number from left, integer,default=1)}
 
 \item{control_pos_column}{The column which positive/cell control are located (column number from left, integer,default=2)}
 
-\item{rotation_deg_needed}{degrees that dataframe needs to be rotated, default =0. Feeds into rotate.R}
+\item{sheetname}{the sheet of the .xlsx file to read, default for promega excel file is "Results"}
 
-\item{df}{dataframe to normalise, where left most column is negative control, and second left column is positive control.}
+\item{rotation_deg_needed}{degrees that dataframe needs to be rotated, default =0. Feeds into rotate.R}
 }
 \value{
 A rotated, normalised dataframe where negative and positive control columns are removed.

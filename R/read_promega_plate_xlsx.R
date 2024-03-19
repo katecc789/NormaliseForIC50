@@ -4,6 +4,7 @@
 #' whilst keeping the column and row names.
 #'
 #' @param input_promega_excel_file_path Path to the input file
+#' @param sheetname The sheetname where the result is recorded on the Promega file. Should be "Results" if not manually changed.
 #' @return A 8x12 data.frame with rownames and column headers
 #' @export
 read_promega_plate_excel= function(input_promega_excel_file_path,sheetname="Results"){

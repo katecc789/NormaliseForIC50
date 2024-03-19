@@ -4,8 +4,8 @@
 #'
 #'
 #' @param df dataframe to normalise, where left most column is negative control, and second left column is positive control.
-#' @param control_neg The column which negative/cell control are located (column number from left, integer)
-#' @param control_pos The column which positive/cell control are located (column number from left, integer)
+#' @param control_neg_column The column(s) which negative/cell control are located (column number from left, integer)
+#' @param control_pos_column The column(s) which positive/cell control are located (column number from left, integer)
 #' @return A normalised dataframe where negative and positive control columns are removed.
 #' @export
 
