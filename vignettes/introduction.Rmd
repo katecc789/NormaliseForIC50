@@ -16,13 +16,20 @@ load the library/package from github.
 ```{r setup}
 if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
 devtools::install_github("TKMarkCheng/NormaliseForIC50")
+
+getwd()
+setwd(here::here("Validation/2022-09-04_reads/example1.xlsx"))
+
+here::i_am("Validation/2022-09-04_reads/example1.xlsx")
+getwd()
 ```
 ### Loading sample, defining output file, and plate rotation (if any)
 It is very important for you to change the following file paths and settings to fit your data. (Where are they stored? Where and what do you what the output excel file to be called? Are your plates rotated?)
+
 ```{r setting up files}
-input_file <- "Validation/2022-09-04_reads/example1.xlsx" #CHANGE to example file in your directory for troubleshooting
-input_directory = "Validation/2022-09-04_reads/" #CHANGE this to directory of input .xlsx data files
-output_file <- "Validation/test.xlsx" # CHANGE directory and name for yourself
+input_file <- here::here("Validation/2022-09-04_reads/example1.xlsx") #CHANGE to example file in your directory for troubleshooting
+input_directory = here::here("Validation/2022-09-04_reads/") #CHANGE this to directory of input .xlsx data files
+output_file <- here::here("Validation/test.xlsx") # CHANGE directory and name for yourself
 ```
 
 It is also important that you communicate how your plates are setup, and they should be consistent for each folder that you use this script on. i.e. don't have horizontal plates and vertical plates mixed in the same folder, and positive and negative controls should be in consistent columns in each folder this script is used on.
@@ -35,7 +42,7 @@ control_pos_column <- c(2) # default positive control column is on second column
 What are the names of all of our input files?
 ```{r get all the filepaths in the directory}
 neut_raw_files <- Sys.glob(paste0(
-  paste0(input_directory,"*.xlsx")) # find all .xlsx file in input directory
+  paste0(input_directory,"/*.xlsx")) # find all .xlsx file in input directory
 )
 neut_raw_files
 ```

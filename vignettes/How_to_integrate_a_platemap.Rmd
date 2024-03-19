@@ -20,10 +20,8 @@ devtools::install_github("TKMarkCheng/NormaliseForIC50",dependencies = TRUE,forc
 
 ### Loading sample, defining output file.
 ```{r setting up files}
-input_file <- "../Validation/Concentration_mode/2024-03-16/Inhib1_Inhib2_Vir1Vir2.xlsx" #CHANGE to example file in your directory for troubleshooting
-input_directory = "../Validation/" #CHANGE this to directory of input .xlsx data files
-output_generated_plateMap_file <- "../Validation/validation_output/example_generated_platemap.xlsx" # CHANGE directory and name for yourself
-
+input_directory = paste0(here::here("Validation/"),"/") #CHANGE this to directory of input .xlsx data files
+output_generated_plateMap_file <- here::here("Validation/validation_output/example_generated_platemap.xlsx") # CHANGE directory and name for yourself
 ```
 
 ## Generate platemap based on the files in a directory. 
@@ -33,184 +31,102 @@ library(dplyr)
 bruh <- NormaliseForIC50::generate_plate_map(input_directory,output_mode = "return")
 bruh
 ```
-you can choose to write to an excel file and manually add values.
-```{r}
-#NormaliseForIC50::generate_plate_map(input_directory,output_mode = "write",output_plateMap_file = output_generated_plateMap_file)
-```
+you can choose to write to an excel file and manually add values. Or you can feed in a pre-made excel file.
 
 ```{r}
+#NormaliseForIC50::generate_plate_map(input_directory,output_mode = "write",output_plateMap_file = output_generated_plateMap_file)
+## manual correction/filling
 platemap <- readxl::read_excel(path="../Validation/validation_output/example_generated_platemap_manual_changes.xlsx")
 platemap
 ```
-Or you can feed in a pre-made excel file.
-```{r}
-platemap_sera <- platemap %>% filter(Group=="inhibition") %>% mutate(column=as.numeric(column))
-platemap_sera
-```
-
-
-```{r sample of 1 plate}
-plate1 <- unique(platemap_sera$Plate_Name)[1]
-plate1_map <- platemap_sera %>% filter(Plate_Name == plate1)
-
-plate1_values <- NormaliseForIC50::plateMap_map_onto_promega_read(plate_map = plate1_map,promega_read_values = "")
-
-plate1_values <- NormaliseForIC50::adding_technical_replicate_suffix(plate1_values)
-
-plate1_values
-
-```
-
-CHECKPOINT PROGRESS FOR FUNCTION CONVERSION --- 
-
-```{r continue example of previous plate}
-# validate the columns of neg, pos, or samples
-validate_columns <- function(columns) {
-      if (is.numeric(columns)){
-        return(columns) 
-      }
-      if (is.character(columns)){
-        if (!grepl(",", columns)) {
-          return(as.integer(columns))
-        } else {
-            return(as.integer(unlist(strsplit(columns,","))))
-          }
-      }
-  }
-# now treat each unique virus suffix as their own set, and normalise.
-normalise_plate_using_plateMap <- function(plate_map=plate1_map, plate_values=plate1_values){
-  df_list <- list()
-  plate_specific_columns <- c("Group","column","Negative_Control_Column","Positive_Control_Column",
-                      "Individual_condition","Virus","dilution_or_concentration","Starting_Dilution_or_concentration","dilution_series")
-  # summarise columns of the same condition
-  plate_map <- plate_map %>% 
-      select(plate_specific_columns) %>%
-      group_by(across(c(-column)))%>%
-      summarise(column=paste(column,collapse=","),.groups = "keep")%>% ungroup() 
-  # add dilution serie column
-  plate_map <- plate_map %>% rowwise() %>% mutate(
-  dilution_serie = paste(generate_dilution_series(titration_mode = dilution_or_concentration,num_steps = 8,
-                                             Starting_Dilution_or_concentration = Starting_Dilution_or_concentration,
-                                             dilution_factor = dilution_series)
-                         ,collapse = ","))
-  for (unique_condition in 1:nrow(plate_map)){
-    neg_control_columns <- validate_columns(plate_map[[unique_condition,"Negative_Control_Column"]])
-    pos_control_columns <- validate_columns(plate_map[[unique_condition,"Positive_Control_Column"]])
-    experiment_columns <-  validate_columns(plate_map[[unique_condition,"column"]])
-    plate_map_virus_specific_normalise_columns <- c(neg_control_columns,
-                                                     pos_control_columns,
-                                                     experiment_columns) # powerful because this also reorders them in order of negative, positive, experiment columns
-    bruh <- NormaliseForIC50::normalise(df = plate_values[plate_map_virus_specific_normalise_columns],
-                                        control_neg_column = seq(length(neg_control_columns)),
-                                        control_pos_column = seq(length(neg_control_columns)+1,length(neg_control_columns)+ length(pos_control_columns)))
-    # add Group, dilution_or_concentration, dilution series
-    Group <- plate_map[[unique_condition,"Group"]]
-    dilution_or_concentration <- plate_map[[unique_condition,"dilution_or_concentration"]]
-    
-    dilution_serie <- plate_map[[unique_condition,"dilution_serie"]]
-    dilution_series_list <- as.numeric(unlist(strsplit(dilution_series, ",")))
-    
-    bruh$Group <- Group
-    bruh$dilution_or_concentration <- dilution_or_concentration
-    bruh$dilution_serie <- dilution_series_list
-    
-    df_list[[unique_condition]] <- bruh 
-  }
-  merge_cols = c("Group","dilution_or_concentration","dilution_serie")
-  plate_normalised <- Reduce(function (x,y) merge(x,y,by=merge_cols, all = TRUE),df_list) %>% dplyr::arrange(across(all_of(merge_cols)))
-    
-  return(plate_normalised)
-}
-
-plate1_normalised <- normalise_plate_using_plateMap(plate1_map,plate1_values)
-plate1_normalised
-```
-
-validated up to this point. Dilution factor also completed below but needs further integration.
 
 ```{r}
-# create a new far-left column called dilution
-convert_dilution_factor <- function(dilution_factor_string="1 in 3"){
-  numerator <- as.numeric(stringr::str_extract(dilution_factor_string,"^[0-9]+(?:\\.[0-9]+)?")) # first integer or decimal numeric
-  denominator <- as.numeric(stringr::str_extract(dilution_factor_string,"[0-9]+(?:\\.[0-9]+)?$")) # last integer or decimal numeric
-  dilution_factor <- denominator/numerator
-  return(dilution_factor)
+options(scipen = 999)
+df_list <- list()
+for (each_plate_name in unique(platemap$Plate_Name)){
+  print(each_plate_name)
+  individual_platemap <- platemap %>% dplyr::filter(Plate_Name == each_plate_name)
+  plate_normalised <- normalise_plate_using_plateMap(individual_platemap)
+  #plate_normalised <- cbind(plate_name=each_plate_name,plate_normalised)
+  print(plate_normalised)
+  df_list[[each_plate_name]] <- plate_normalised
 }
-
-generate_dilution_series <- function(Starting_Dilution_or_concentration = 20, num_steps = 8, dilution_factor = "1 in 3", titration_mode = c("dilution","concentration")){
- dilution_factor <- convert_dilution_factor(dilution_factor)
- dilution_series <- numeric(num_steps)
- dilution_series[1] <- Starting_Dilution_or_concentration
- for (i in 2:num_steps){
-  dilution_series[i] <- switch(titration_mode,
-                               "dilution" = dilution_series[i-1] * dilution_factor, 
-                               "concentration" = dilution_series[i-1] / dilution_factor)
- }
- return(dilution_series)
-}
-
-num_steps <- nrow(plate1_values)
-dilution_df <- plate1_map%>% select(column,Negative_Control_Column,Positive_Control_Column,Virus,dilution_or_concentration,Starting_Dilution_or_concentration,dilution_series) %>%
-  group_by(Negative_Control_Column,Positive_Control_Column,Virus,dilution_or_concentration,Starting_Dilution_or_concentration,dilution_series) %>%
-  summarise(column=paste(column,collapse=","))%>%
-  ungroup()
-dilution_df <- dilution_df %>% rowwise() %>% mutate(
-  dilution_serie = paste(generate_dilution_series(titration_mode = dilution_or_concentration,num_steps = 8,
-                                             Starting_Dilution_or_concentration = Starting_Dilution_or_concentration,
-                                             dilution_factor = dilution_series)
-                         ,collapse = ",")
-  )
-dilution_df
-
-NormaliseForIC50::normalise(plate1_values,control_neg_column = dilution_df$Negative_Control_Column,control_pos_column = dilution_df$Positive_Control_Column)
+merge_cols = c("Group","dilution_or_concentration","dilution_serie")
+plates_merged <- Reduce(function (x,y) merge(x,y,by=merge_cols, all = TRUE),df_list) %>% dplyr::arrange(across(all_of(merge_cols)))
+plates_merged
 
 ```
-
-
-
-It is also important that you communicate how your plates are setup, and they should be consistent for each folder that you use this script on. i.e. don't have horizontal plates and vertical plates mixed in the same folder, and positive and negative controls should be in consistent columns in each folder this script is used on.
-```{r plate setup}
-rotate_by <- 0 # clockwise degrees, multiples of 90, useful when doing 12 fold dilutions.
-control_neg_column <- c(1) # default negative control column is on first column from the left
-control_pos_column <- c(2) # default positive control column is on second column from the left
-```
-## Getting the filenames from our directory
-What are the names of all of our input files?
-```{r get all the filepaths in the directory}
-neut_raw_files <- Sys.glob(paste0(
-  paste0(input_directory,"*.xlsx")) # find all .xlsx file in input directory
-)
-neut_raw_files
-```
-## Example case: Plate 1
-An inital view of plate 1
-```{r example}
-plate1 <- NormaliseForIC50::read_promega_plate_excel(input_promega_excel_file_path = input_file)
-plate1
-```
-The Name assigned to each column can be any string of characters, as long as there's no excessively weird symbols.
-
-```{r test run}
-NormaliseForIC50::final_func(neut_raw_files[1],control_neg_column = c(1),control_pos_column = c(2), rotation_deg_needed = rotate_by)
-```
-## Processing all the files in the directory
-
 ```{r}
-#create xlsx and populate df into separate sheets. CHANGE rotation_deg_needed if the plate was ROTATED when setting up.
+# if you want to pick by specific conditions or viruses
+filter_by_condition = NULL
+filter_by_virus = c("Virus1","VIrus2")
+
+filter_merged <- function(plates_merged,condition=NULL,virus=NULL){
+  experiment_columns <- data.frame(colnames=colnames(plates_merged)) %>% 
+    subset(.,!(colnames %in% merge_cols)) %>%
+    tidyr::separate(colnames, into=c("individual_condition","Virus","technical_replicate"),"_",remove=FALSE)
+  
+  filtered_experiment_columns <- experiment_columns %>%
+    filter(if(!is.null(condition)) (individual_condition %in% condition) else TRUE) %>%
+    filter(if(!is.null(virus)) (Virus %in% virus) else TRUE)
+  
+  filtered_plates_merged <- plates_merged %>% 
+    dplyr::select(merge_cols,filtered_experiment_columns$colnames) %>%
+    dplyr::filter(!if_all(-merge_cols,is.na))
+  
+  #remove technical replicate in colnames
+  colnames(filtered_plates_merged) <- sub("_techrep[0-9]+$", "", colnames(filtered_plates_merged)) 
+  
+  return (filtered_plates_merged)
+}
+plates_merged_filter <- filter_merged(plates_merged,condition=filter_by_condition,virus = filter_by_virus)
+plates_merged_filter
+
+write.xlsx(plates_merged_filter,
+           here::here(paste0(
+             "Validation/validation_output/PlatesMerged",
+             "_",(if (!is.null(filter_by_condition)) paste(filter_by_condition,collapse='-') else 'AllCondition'),
+             "_",(if (!is.null(filter_by_virus)) paste(filter_by_virus,collapse='-') else 'AllVirus'),
+             ".xlsx"))
+           )
+```
+
+Alternatively, you can group by the virus or individual condition and generate sheets per virus or individual condition.
+```{r}
+#groupby viruses
+output_file_groupby_virus <- here::here("Validation/validation_output/PlatesMerged_Grouped_by_virus.xlsx")
+
 library(openxlsx)
 wb<-createWorkbook()
-for (neut_raw_file in neut_raw_files){
-  neut_file <- basename(neut_raw_file) #remove file path
-  neut_file = tools::file_path_sans_ext(neut_file) #remove extension
-  addWorksheet(wb,sheetName=neut_file)
-  writeData(wb, sheet = neut_file,
-            x = NormaliseForIC50::final_func(
-              neut_raw_file,
-              control_neg_column = control_neg_column,
-              control_pos_column = control_pos_column,
-              rotation_deg_needed = rotate_by))
-  print(paste0("normalised data written to:",neut_file))
+virues <- unique(platemap$Virus)
+for (virus in virues){
+  plates_merged_filter <- filter_merged(plates_merged,virus = virus)
+  sheetName=virus
+  addWorksheet(wb,sheetName=sheetName)
+  writeData(wb, sheet = sheetName,
+            x=plates_merged_filter)
+  print(glue::glue("data for virus:{virus} calculated, grouped and written."))
+  print(plates_merged_filter)
 }
-saveWorkbook(wb,file=output_file,overwrite = TRUE)
-print(paste0("saved collated sheets to excel file:",output_file))
+saveWorkbook(wb,file=output_file_groupby_virus,overwrite = TRUE)
+```
+
+
+```{r}
+#groupby condition
+output_file_groupby_condition <- here::here("Validation/validation_output/PlatesMerged_Grouped_by_condition.xlsx")
+
+library(openxlsx)
+wb<-createWorkbook()
+conditions <- unique(platemap$Individual_condition)
+for (condition in conditions){
+  plates_merged_filter <- filter_merged(plates_merged,condition = condition)
+  sheetName=condition
+  addWorksheet(wb,sheetName=sheetName)
+  writeData(wb, sheet = sheetName,
+            x=plates_merged_filter)
+  print(plates_merged_filter)
+  print(glue::glue("data for condition:{condition} calculated, grouped and written."))
+}
+saveWorkbook(wb,file=output_file_groupby_condition,overwrite = TRUE)
 ```
