@@ -1,12 +1,12 @@
 Type: Package
 Title: Normalise IC50s plates, and in mapping mode, find and normalise using a plate map with strict structure.
 Package: NormaliseForIC50
-Version: 1.4.0
+Version: 2.0.0
 Authors@R: 
     person("Mark", "Cheng", , "tkmc2@cam.ac.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-4323-5574"))
 Description: Take in Promega read files, process them into dataframes, normalises them, and then return a collated excel sheet of NORMALISED data, ready to be fed directly into PRISM.
-License: `use_mit_license()`
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
@@ -21,3 +21,4 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+URL: https://tkmarkcheng.github.io/NormaliseForIC50/
