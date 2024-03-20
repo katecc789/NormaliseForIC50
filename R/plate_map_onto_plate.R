@@ -168,3 +168,28 @@ normalise_plate_using_plateMap <- function(plate_map=plate1_map, processed_read_
   return(plate_normalised)
 }
 
+#' @rdname filter_merged
+#' @title filter_merged
+#' @param plates_merged the dataframe of the merged normalised plates
+#' @param condition The inidividual or test condition you want to filter by, can be a single string, or a list. "AZ12" 
+#' @param virus The virus that you want to filter by. Can be a single string, or a list. e.g. c("Virus1","VIrus2")
+#' @return A filtered dataframe of normalised values. 
+#' @export
+filter_merged <- function(plates_merged,condition=NULL,virus=NULL){
+  experiment_columns <- data.frame(colnames=colnames(plates_merged)) %>% 
+    subset(.,!(colnames %in% merge_cols)) %>%
+    tidyr::separate(colnames, into=c("individual_condition","Virus","technical_replicate"),"_",remove=FALSE)
+  
+  filtered_experiment_columns <- experiment_columns %>%
+    filter(if(!is.null(condition)) (individual_condition %in% condition) else TRUE) %>%
+    filter(if(!is.null(virus)) (Virus %in% virus) else TRUE)
+  
+  filtered_plates_merged <- plates_merged %>% 
+    dplyr::select(merge_cols,filtered_experiment_columns$colnames) %>%
+    dplyr::filter(!if_all(-merge_cols,is.na))
+  
+  #remove technical replicate in colnames
+  colnames(filtered_plates_merged) <- sub("_techrep[0-9]+$", "", colnames(filtered_plates_merged)) 
+  
+  return (filtered_plates_merged)
+}

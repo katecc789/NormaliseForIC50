@@ -2,6 +2,7 @@
 
 export("%>%")
 export(adding_technical_replicate_suffix)
+export(filter_merged)
 export(final_func)
 export(generate_plate_map)
 export(normalise)
