@@ -19,8 +19,8 @@ devtools::install_github("TKMarkCheng/NormaliseForIC50")
 ## Method 1
 loaded onto R via
 ```
-if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
-devtools::install_github("TKMarkCheng/NormaliseForIC50")
+if(!require("remotes"))install.packages("remotes",repos="http://cran.us.r-project.org")
+remotes::install_github("TKMarkCheng/NormaliseForIC50",dependencies = TRUE, force = TRUE)
 ```
 A detailed tutorial is available at [`vignettes/introduction.html`](articles/introduction.html).
 - It is very important that you change the input_file, input_directory, and output_file path and names to your own.

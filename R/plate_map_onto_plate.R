@@ -173,8 +173,11 @@ normalise_plate_using_plateMap <- function(plate_map=plate1_map, processed_read_
 #' @param plates_merged the dataframe of the merged normalised plates
 #' @param condition The inidividual or test condition you want to filter by, can be a single string, or a list. "AZ12" 
 #' @param virus The virus that you want to filter by. Can be a single string, or a list. e.g. c("Virus1","VIrus2")
-#' @return A filtered dataframe of normalised values. 
+#' @return A filtered dataframe of normalised values.
 #' @export
+#' @description
+#' Filters the dataframe by conditions or virus
+#' 
 filter_merged <- function(plates_merged,condition=NULL,virus=NULL){
   experiment_columns <- data.frame(colnames=colnames(plates_merged)) %>% 
     subset(.,!(colnames %in% merge_cols)) %>%

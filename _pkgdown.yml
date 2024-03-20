@@ -2,4 +2,5 @@ url: https://tkmarkcheng.github.io/NormaliseForIC50/
 template:
   bootstrap: 5
   bootswatch: cosmo
-
+development:
+  mode: auto

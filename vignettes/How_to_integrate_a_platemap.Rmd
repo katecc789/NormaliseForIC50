@@ -25,8 +25,8 @@ knitr::opts_chunk$set(class.output = ".bg-output")
 
 # load the library/package from github.
 ```{r setup}
-if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
-devtools::install_github("TKMarkCheng/NormaliseForIC50",dependencies = TRUE,force = TRUE)
+if(!require("remotes"))install.packages("remotes",repos="http://cran.us.r-project.org")
+if(!require("NormaliseForIC50"))remotes::install_github("TKMarkCheng/NormaliseForIC50",dependencies = TRUE, force = TRUE)
 library(dplyr)
 options(scipen = 999) # do not use scientific notation
 ```
@@ -80,25 +80,7 @@ print(glue::glue("{dim(plates_merged)[2] -3} different unique experiment conditi
 filter_by_condition = NULL
 filter_by_virus = c("Virus1","VIrus2")
 
-filter_merged <- function(plates_merged,condition=NULL,virus=NULL){
-  experiment_columns <- data.frame(colnames=colnames(plates_merged)) %>% 
-    subset(.,!(colnames %in% merge_cols)) %>%
-    tidyr::separate(colnames, into=c("individual_condition","Virus","technical_replicate"),"_",remove=FALSE)
-  
-  filtered_experiment_columns <- experiment_columns %>%
-    filter(if(!is.null(condition)) (individual_condition %in% condition) else TRUE) %>%
-    filter(if(!is.null(virus)) (Virus %in% virus) else TRUE)
-  
-  filtered_plates_merged <- plates_merged %>% 
-    dplyr::select(merge_cols,filtered_experiment_columns$colnames) %>%
-    dplyr::filter(!if_all(-merge_cols,is.na))
-  
-  #remove technical replicate in colnames
-  colnames(filtered_plates_merged) <- sub("_techrep[0-9]+$", "", colnames(filtered_plates_merged)) 
-  
-  return (filtered_plates_merged)
-}
-plates_merged_filter <- filter_merged(plates_merged,condition=filter_by_condition,virus = filter_by_virus)
+plates_merged_filter <- NormaliseForIC50::filter_merged(plates_merged,condition=filter_by_condition,virus = filter_by_virus)
 
 openxlsx::write.xlsx(plates_merged_filter,
            here::here(paste0(
@@ -119,7 +101,7 @@ library(openxlsx)
 wb<-createWorkbook()
 virues <- unique(platemap$Virus)
 for (virus in virues){
-  plates_merged_filter <- filter_merged(plates_merged,virus = virus)
+  plates_merged_filter <- NormaliseForIC50::filter_merged(plates_merged,virus = virus)
   sheetName=virus
   addWorksheet(wb,sheetName=sheetName)
   writeData(wb, sheet = sheetName,
@@ -138,7 +120,7 @@ library(openxlsx)
 wb<-createWorkbook()
 conditions <- unique(platemap$Individual_condition)
 for (condition in conditions){
-  plates_merged_filter <- filter_merged(plates_merged,condition = condition)
+  plates_merged_filter <- NormaliseForIC50::filter_merged(plates_merged,condition = condition)
   sheetName=condition
   addWorksheet(wb,sheetName=sheetName)
   writeData(wb, sheet = sheetName,
