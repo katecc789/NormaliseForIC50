@@ -46,6 +46,7 @@ example_generated_plate_map <- NormaliseForIC50::generate_plate_map(input_direct
 head(example_generated_plate_map)
 ```
 you can choose to write to an excel file and manually add values. Or you can feed in a pre-made excel file.
+
 ## STEP3: Manual correction of list
 ```{r}
 #NormaliseForIC50::generate_plate_map(input_directory,output_mode = "write",output_plateMap_file = output_generated_plateMap_file)

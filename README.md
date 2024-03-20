@@ -44,7 +44,7 @@ Validation set of 10 plates. Further details can be seen in the `Validation` dir
 
 # Using a Plate Map
 A detailed tutorial is available at [`vignettes/How_to_integrate_a_platemap.html`](articles/How_to_integrate_a_platemap.html)
-If you're using modifying a prior made plate map, a strict format of the platemap as specified in `Validation/validation_output/example_generated_platemap_manual_changes.xlsx` must be followed.
+If you're using modifying a prior made plate map, a strict format of the platemap as specified in [`Validation/validation_output/example_generated_platemap_manual_changes.xlsx`](https://github.com/TKMarkCheng/NormaliseForIC50/blob/main/Validation/validation_output/example_generated_platemap_manual_changes.xlsx) must be followed.
 
 # Common issues
 ```

@@ -119,7 +119,8 @@ generate_dilution_series <- function(Starting_Dilution_or_concentration = 20, nu
 #' @return validated version which is a list of integers
 #' @export
 #' @description
-# now treat each unique virus suffix as their own set, and normalise.
+#' now treat each unique virus suffix as their own set, and normalise.
+#'
 normalise_plate_using_plateMap <- function(plate_map=plate1_map, processed_read_values_with_tech_rep){
   if (missing(processed_read_values_with_tech_rep)){
     processed_read_values_with_tech_rep <- plateMap_map_onto_promega_read(plate_map)
