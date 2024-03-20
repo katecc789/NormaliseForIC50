@@ -5,6 +5,8 @@
 \alias{adding_technical_replicate_suffix}
 \alias{plateMap_map_onto_promega_read}
 \alias{validate_columns}
+\alias{convert_dilution_factor}
+\alias{generate_dilution_series}
 \alias{normalise_plate_using_plateMap}
 \title{map a single plate_map to a read promega_plate}
 \usage{
@@ -13,6 +15,15 @@ adding_technical_replicate_suffix(mapped_plate)
 plateMap_map_onto_promega_read(plate_map, promega_read_values)
 
 validate_columns(columns)
+
+convert_dilution_factor(dilution_factor_string = "1 in 3")
+
+generate_dilution_series(
+  Starting_Dilution_or_concentration = 20,
+  num_steps = 8,
+  dilution_factor = "1 in 3",
+  titration_mode = c("dilution", "concentration")
+)
 
 normalise_plate_using_plateMap(
   plate_map = plate1_map,
@@ -28,6 +39,16 @@ normalise_plate_using_plateMap(
 
 \item{columns}{Negative_Control_Column, Positive_Control_Column, or column from a plate map, which can be strings like "5,6" when processing experiment columns which summarises}
 
+\item{dilution_factor_string}{dilution formatted as numerator in denominator (e.g. 1 in 3)}
+
+\item{Starting_Dilution_or_concentration}{The starting dilution or concentration (unitless)}
+
+\item{num_steps}{Number of dilution rows including neat}
+
+\item{dilution_factor}{dilution formatted as numerator in denominator (e.g. 1 in 3)}
+
+\item{titration_mode}{If dilution, the numbers get bigger, if concentration, the numbers get smaller}
+
 \item{processed_read_values_with_tech_rep}{output of plateMap_map_onto_promega_read}
 }
 \value{
@@ -37,6 +58,10 @@ normalized values with \if{html}{\out{<Group>}}, <dilution_or_concentration>, <d
 
 validated version which is a list of integers
 
+numeric dilution_factor
+
+comma-separated string of dilution_series
+
 validated version which is a list of integers
 }
 \description{
@@ -45,4 +70,6 @@ and more importantly prevent automatic suffix addition in R to prevent unexpecte
 This acts as a daughter function of plate_map_onto_plate but also can act as a stand alone function.
 
 validate the columns of neg, pos, or samples
+
+now treat each unique virus suffix as their own set, and normalise.
 }

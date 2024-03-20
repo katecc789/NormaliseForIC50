@@ -22,24 +22,21 @@ knitr::opts_chunk$set(class.output = ".bg-output")
 
 
 ```{r setup, include=FALSE}
-library(readxl)
 # plot manually tallied values
 input_file <- here::here("Validation/tall_normalisation_script_validation_dataset.xlsx")
 input_name <- tools::file_path_sans_ext(input_file)
 # read in and select relevant 8x12 area of the excel Results sheet
-df <- read_excel(input_file,sheet = "Sheet1")
+df <- readxl::read_excel(input_file,sheet = "Sheet1")
 df
 ```
 
 ```{r correlation_plot}
-library(ggpubr) 
-plot<-ggscatter(df, x = "PRISM normalise", y = "Script normalise",
+plot<-ggpubr::ggscatter(df, x = "PRISM normalise", y = "Script normalise",
           add = "reg.line", add.params = list(color="blue", fill="lightgrey"), conf.int = TRUE, # Add confidence interval
           cor.coef = FALSE, cor.method = "pearson", # Add correlation coefficient. see ?stat_cor
-          xlab = "PRISM normalised value", ylab = "R Script normalised value")+ stat_cor(cor.coef.name = "R",color="red", method = "pearson", label.sep = "\n")
+          xlab = "PRISM normalised value", ylab = "R Script normalised value")+ ggpubr::stat_cor(cor.coef.name = "R",color="red", method = "pearson", label.sep = "\n")
 
-ggsave("../man/figures/validation_correlation_plot.png",plot)
-
+#ggplot2::ggsave("../man/figures/validation_correlation_plot.png",plot)
 print(plot)
 ```
 
