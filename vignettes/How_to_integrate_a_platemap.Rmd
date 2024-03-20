@@ -1,7 +1,7 @@
 ---
-title: "How to integrate a platemap which maps out experiments to name columns automatically and group results."
+title: "Generate + integrate a platemap and group results."
 author: "Mark Cheng"
-date: "17/03/2024"
+date: "19/03/2024"
 output:
   html_document: 
     theme: cerulean
@@ -9,53 +9,71 @@ output:
     toc_float: yes
 #Unorthodox calling in a vignette: did not use standard output of html_vignette (which is simpler but more space efficient), but rather traditional .rmd html_document format.
 #This is because this is not uploaded to CRAN. see more details here (https://bookdown.org/yihui/rmarkdown/r-package-vignette.html).
-
 ---
-## Setting up
-load the library/package from github.
+
+```{css, echo=FALSE}
+.bg-output {
+  background-color: white;
+  border: 3px solid lightgray;
+}
+```
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(class.output = ".bg-output")
+```
+
+
+# load the library/package from github.
 ```{r setup}
 if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
 devtools::install_github("TKMarkCheng/NormaliseForIC50",dependencies = TRUE,force = TRUE)
+library(dplyr)
+options(scipen = 999) # do not use scientific notation
 ```
 
-### Loading sample, defining output file.
+# Reading in or generating the platemap
+## STEP1: Loading sample, defining output file.
 ```{r setting up files}
-input_directory = paste0(here::here("Validation/"),"/") #CHANGE this to directory of input .xlsx data files
+search_folder = "Validation/" #CHANGE this to the folder containing all your input .xlsx data files
+input_directory = paste0(here::here(search_folder),"/")
 output_generated_plateMap_file <- here::here("Validation/validation_output/example_generated_platemap.xlsx") # CHANGE directory and name for yourself
 ```
 
-## Generate platemap based on the files in a directory. 
+## STEP2: Generate platemap based on the files in the specified directory. 
 This function fixes missing columns, and also finds the promega_plate_path by searching the Plate_Name you have given. You need to make sure your plate names are unique.
 ```{r}
-library(dplyr)
-bruh <- NormaliseForIC50::generate_plate_map(input_directory,output_mode = "return")
-bruh
+example_generated_plate_map <- NormaliseForIC50::generate_plate_map(input_directory,output_mode = "return")
+head(example_generated_plate_map)
 ```
 you can choose to write to an excel file and manually add values. Or you can feed in a pre-made excel file.
-
+## STEP3: Manual correction of list
 ```{r}
 #NormaliseForIC50::generate_plate_map(input_directory,output_mode = "write",output_plateMap_file = output_generated_plateMap_file)
-## manual correction/filling
+## manual correction/filling, making a new file as below
 platemap <- readxl::read_excel(path="../Validation/validation_output/example_generated_platemap_manual_changes.xlsx")
 platemap
 ```
+# using the platemap - query, normalise, and merge
+get a collated sheet of normalised values of all the plates and columns described in the plate map.
 
 ```{r}
-options(scipen = 999)
 df_list <- list()
 for (each_plate_name in unique(platemap$Plate_Name)){
   print(each_plate_name)
   individual_platemap <- platemap %>% dplyr::filter(Plate_Name == each_plate_name)
-  plate_normalised <- normalise_plate_using_plateMap(individual_platemap)
+  plate_normalised <- NormaliseForIC50::normalise_plate_using_plateMap(individual_platemap)
   #plate_normalised <- cbind(plate_name=each_plate_name,plate_normalised)
-  print(plate_normalised)
   df_list[[each_plate_name]] <- plate_normalised
 }
 merge_cols = c("Group","dilution_or_concentration","dilution_serie")
 plates_merged <- Reduce(function (x,y) merge(x,y,by=merge_cols, all = TRUE),df_list) %>% dplyr::arrange(across(all_of(merge_cols)))
-plates_merged
 
+print(glue::glue("{dim(plates_merged)[2] -3} different unique experiment conditions.")) 
 ```
+
+# filtering and grouping by virus or condition of interest
+
+## filtering
 ```{r}
 # if you want to pick by specific conditions or viruses
 filter_by_condition = NULL
@@ -80,9 +98,8 @@ filter_merged <- function(plates_merged,condition=NULL,virus=NULL){
   return (filtered_plates_merged)
 }
 plates_merged_filter <- filter_merged(plates_merged,condition=filter_by_condition,virus = filter_by_virus)
-plates_merged_filter
 
-write.xlsx(plates_merged_filter,
+openxlsx::write.xlsx(plates_merged_filter,
            here::here(paste0(
              "Validation/validation_output/PlatesMerged",
              "_",(if (!is.null(filter_by_condition)) paste(filter_by_condition,collapse='-') else 'AllCondition'),
@@ -90,7 +107,8 @@ write.xlsx(plates_merged_filter,
              ".xlsx"))
            )
 ```
-
+## Grouping
+### Grouping by virus
 Alternatively, you can group by the virus or individual condition and generate sheets per virus or individual condition.
 ```{r}
 #groupby viruses
@@ -106,12 +124,11 @@ for (virus in virues){
   writeData(wb, sheet = sheetName,
             x=plates_merged_filter)
   print(glue::glue("data for virus:{virus} calculated, grouped and written."))
-  print(plates_merged_filter)
 }
 saveWorkbook(wb,file=output_file_groupby_virus,overwrite = TRUE)
 ```
 
-
+### Grouping by condition
 ```{r}
 #groupby condition
 output_file_groupby_condition <- here::here("Validation/validation_output/PlatesMerged_Grouped_by_condition.xlsx")
@@ -125,7 +142,7 @@ for (condition in conditions){
   addWorksheet(wb,sheetName=sheetName)
   writeData(wb, sheet = sheetName,
             x=plates_merged_filter)
-  print(plates_merged_filter)
+  
   print(glue::glue("data for condition:{condition} calculated, grouped and written."))
 }
 saveWorkbook(wb,file=output_file_groupby_condition,overwrite = TRUE)

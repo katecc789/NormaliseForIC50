@@ -1,5 +1,5 @@
 # NormaliseForIC50
-pre-process data to return normalise IC50 curves for direct input into PRISM
+## pre-process data to return normalise IC50 curves for direct input into PRISM
 
 This script automates the normalization process for neutralization assays performed on a 96-well plate read on the Promega system, and more generally, serial dilution results with columns/rows of negative and positive controls. <br />
 This script achieved [perfect concordance](https://github.com/TKMarkCheng/NormaliseForIC50/edit/main/README.md#validation) with the normalization in PRISM (R=1.0, ρ<2.2e-16).
@@ -7,7 +7,7 @@ This script achieved [perfect concordance](https://github.com/TKMarkCheng/Normal
 **INPUT**: The script currently only reads in the **.xlsx file** outputs from Promega in a given directory. <br />
 **OUTPUT**: 0 to 100 normalized data sheets collated into the same .xlsx file that can be imported/copied and pasted back to PRISM for IC50 curve fitting.
 
-## Installation
+# Installation
 Install from github using devtools.
 
 ```
@@ -15,16 +15,17 @@ install.packages("devtools") # if you have not installed "devtools" package
 devtools::install_github("TKMarkCheng/NormaliseForIC50")
 ```
 
-## To use the script
-### Method 1
-As of 09/11/2023, this script has been modularised and updated as an R package. This means it can be loaded onto R via
+# To use the script
+## Method 1
+loaded onto R via
 ```
 if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
 devtools::install_github("TKMarkCheng/NormaliseForIC50")
 ```
-A detailed tutorial is available at [`vignettes/introduction.html`](https://htmlpreview.github.io/?https://github.com/TKMarkCheng/NormaliseForIC50/blob/main/vignettes/introduction.html).
+A detailed tutorial is available at [`vignettes/introduction.html`](articles/introduction.html).
 - It is very important that you change the input_file, input_directory, and output_file path and names to your own.
-### Method 2
+
+## Method 2
 0. Clone/Download the github repository.
 1. Move all the Promega read .xlsx files into the same folder (your `input_directory`)
 2. In the `normalisation.R` script, Change the `input_directory`, `input_file` and `output_file` to appropriate names
@@ -39,10 +40,13 @@ In cases where the plate was accidentally rotated, or a vertical serial dilution
 
 ## Validation
 Validation set of 10 plates. Further details can be seen in the `Validation` directory. <br />
-![alt text](https://github.com/TKMarkCheng/NormaliseForIC50/blob/main/Validation/correlation_plot.png)
+<img src="man/figures/validation_correlation_plot.png" align="center" height="400" style = "float:center;height:400px;"/>
 
+# Using a Plate Map
+A detailed tutorial is available at [`vignettes/How_to_integrate_a_platemap.html`](articles/How_to_integrate_a_platemap.html)
+If you're using modifying a prior made plate map, a strict format of the platemap as specified in `Validation/validation_output/example_generated_platemap_manual_changes.xlsx` must be followed.
 
-## Common issues
+# Common issues
 ```
 Error in utils::unzip(zip_path, list = TRUE) :
 zip file '\~$.xlsx' cannot be opened`

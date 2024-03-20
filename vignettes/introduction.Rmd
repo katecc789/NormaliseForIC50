@@ -11,19 +11,24 @@ output:
 #This is because this is not uploaded to CRAN. see more details here (https://bookdown.org/yihui/rmarkdown/r-package-vignette.html).
 
 ---
-## Setting up
+```{css, echo=FALSE}
+.bg-output {
+  background-color: white;
+  border: 3px solid lightgray;
+}
+```
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(class.output = ".bg-output")
+```
+
+# Setting up
 load the library/package from github.
 ```{r setup}
 if(!require("devtools"))install.packages("devtools",repos="http://cran.us.r-project.org")
 devtools::install_github("TKMarkCheng/NormaliseForIC50")
-
-getwd()
-setwd(here::here("Validation/2022-09-04_reads/example1.xlsx"))
-
-here::i_am("Validation/2022-09-04_reads/example1.xlsx")
-getwd()
 ```
-### Loading sample, defining output file, and plate rotation (if any)
+# Loading sample, defining output file, and plate rotation (if any)
 It is very important for you to change the following file paths and settings to fit your data. (Where are they stored? Where and what do you what the output excel file to be called? Are your plates rotated?)
 
 ```{r setting up files}
@@ -38,7 +43,7 @@ rotate_by <- 0 # clockwise degrees, multiples of 90, useful when doing 12 fold d
 control_neg_column <- c(1) # default negative control column is on first column from the left
 control_pos_column <- c(2) # default positive control column is on second column from the left
 ```
-## Getting the filenames from our directory
+# Getting the filenames from our directory
 What are the names of all of our input files?
 ```{r get all the filepaths in the directory}
 neut_raw_files <- Sys.glob(paste0(
@@ -46,7 +51,7 @@ neut_raw_files <- Sys.glob(paste0(
 )
 neut_raw_files
 ```
-## Example case: Plate 1
+# Example case: Plate 1
 An inital view of plate 1
 ```{r example}
 plate1 <- NormaliseForIC50::read_promega_plate_excel(input_promega_excel_file_path = input_file)
@@ -57,7 +62,7 @@ The Name assigned to each column can be any string of characters, as long as the
 ```{r test run}
 NormaliseForIC50::final_func(neut_raw_files[1],control_neg_column = c(1),control_pos_column = c(2), rotation_deg_needed = rotate_by)
 ```
-## Processing all the files in the directory
+# Processing all the files in the directory
 
 ```{r}
 #create xlsx and populate df into separate sheets. CHANGE rotation_deg_needed if the plate was ROTATED when setting up.
