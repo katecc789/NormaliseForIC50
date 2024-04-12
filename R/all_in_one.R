@@ -16,7 +16,7 @@ final_func <- function(neut_xlsx_path, control_neg_column=c(1), control_pos_colu
   # 2. rotate by n degrees, if needed
   df <- rotate(df,rotation_deg_needed = rotation_deg_needed)
   # 3. normalize the rotated df
-  output <- normalise(df = df,control_neg_column = control_neg_column,control_pos_column = control_pos_column) #change if negative and positive column not on far left
+  output <- normalise(df = df, control_neg_column = control_neg_column,control_pos_column = control_pos_column) #change if negative and positive column not on far left
   # 4. Return and announce completion
   return(output)
   input_name = tools::file_path_sans_ext(neut_xlsx_path)

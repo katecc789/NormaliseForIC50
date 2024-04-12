@@ -1,4 +1,4 @@
-#' Reads in dataframe of Promega data, and normalise. 
+#' Reads in dataframe of Promega data, and normalise.
 #'
 #' This function assumes that the left most row is cell/negative control, and second column from the left as virus/positive control.
 #'
@@ -9,14 +9,20 @@
 #' @return A normalised dataframe where negative and positive control columns are removed.
 #' @export
 
-normalise <- function(df,control_neg_column=c(1),control_pos_column=c(2)){
-  control.neg <- mean(unlist(df[,control_neg_column]),na.rm=TRUE) #unlist is for when there are multiple positive/negative columns, so the dataframe will be converted to a list where mean() can be called.
-  control.pos <- mean(unlist(df[,control_pos_column]),na.rm=TRUE)
+normalise <- function(df, control_neg_column=c(1),control_pos_column=c(2)){
+  check_max(8,df[c(3:12)]) #warning if last row values are not the largest in the column 
+  check_min(1,df[c(3:12)]) #warning if first row values are not the smallest in the column 
+  lim <- data.frame(
+    lower_lim = apply(df[c(3:12)], 2, min),
+    upper_im = apply(df[c(3:12)], 2, max)
+  )
+  control.neg <- k_clustering(unlist(df[,control_neg_column]), unlist(lim[,1]), na.rm=TRUE) 
+  control.pos <- k_clustering(unlist(df[,control_pos_column]), unlist(lim[,2]), na.rm=TRUE)
   print(paste0("negative control = ",control.neg))
   print(paste0("positive control = ",control.pos))
   #exclude positive and negative control columns
   df.values<-df[,-c(control_neg_column,control_pos_column)]
-  
+
   normalise_cell <- function(value){ #nested function - the normalization of individual cells
     return(
       round(
