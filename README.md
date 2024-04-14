@@ -38,7 +38,10 @@ A detailed tutorial is available at [`vignettes/introduction.html`](articles/int
 Rotation defaults to 0 (A1 at top left corner). <br />
 In cases where the plate was accidentally rotated, or a vertical serial dilution was performed, we can clockwise rotate the read orientation by a multiple of 90° by changing `rotate_by`.
 
-## Validation
+## Automatic detection of anomalies
+Thanks to helpful summer student Kate 
+
+## Proof of work - Validation
 Validation set of 10 plates. Further details can be seen in the `Validation` directory. <br />
 <img src="man/figures/validation_correlation_plot.png" align="center" height="400" style = "float:center;height:400px;"/>
 

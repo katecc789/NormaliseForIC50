@@ -4,7 +4,13 @@
 \alias{normalise}
 \title{Reads in dataframe of Promega data, and normalise.}
 \usage{
-normalise(df, control_neg_column = c(1), control_pos_column = c(2))
+normalise(
+  df,
+  control_neg_column = c(1),
+  control_pos_column = c(2),
+  cluster = FALSE,
+  filename = ""
+)
 }
 \arguments{
 \item{df}{dataframe to normalise, where left most column is negative control, and second left column is positive control.}
@@ -12,6 +18,8 @@ normalise(df, control_neg_column = c(1), control_pos_column = c(2))
 \item{control_neg_column}{The column(s) which negative/cell control are located (column number from left, integer)}
 
 \item{control_pos_column}{The column(s) which positive/cell control are located (column number from left, integer)}
+
+\item{cluster}{Experimental feature - uses k-means clustering to detect and exclude anomalies in negative and positive control (default = FALSE)}
 }
 \value{
 A normalised dataframe where negative and positive control columns are removed.

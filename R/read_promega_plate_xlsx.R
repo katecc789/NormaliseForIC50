@@ -7,7 +7,7 @@
 #' @param sheetname The sheetname where the result is recorded on the Promega file. Should be "Results" if not manually changed.
 #' @return A 8x12 data.frame with rownames and column headers
 #' @export
-read_promega_plate_excel= function(input_promega_excel_file_path,sheetname="Results"){
+read_promega_plate_excel <- function(input_promega_excel_file_path,sheetname="Results"){
   df <- readxl::read_excel(input_promega_excel_file_path,
                            sheet=sheetname,
                            .name_repair = "unique_quiet")[8:16,5:17] # subset relevant columns and rows
