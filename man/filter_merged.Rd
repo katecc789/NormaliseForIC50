@@ -17,5 +17,5 @@ filter_merged(plates_merged, condition = NULL, virus = NULL)
 A filtered dataframe of normalised values.
 }
 \description{
-filter_merged
+Filters the dataframe by conditions or virus
 }
