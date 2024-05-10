@@ -39,7 +39,7 @@ adding_technical_replicate_suffix <- function(mapped_plate){
 plateMap_map_onto_promega_read <- function(plate_map,promega_read_values){
   if (missing(promega_read_values)){
     promega_plate_location <- unique(plate_map$promega_plate_path)
-    if (promega_plate_location >1){
+    if (length(promega_plate_location) >1){
       warning(glue::glue("You have more than one promega_plate_paths for the same plate: {promega_plate_location}, only the first will be chosen, please check if you made any typos in the plate map."))}
     promega_read_values <- read_promega_plate_excel(promega_plate_location[1])
   }
